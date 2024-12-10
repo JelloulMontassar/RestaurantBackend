@@ -24,7 +24,7 @@ public class Repas {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TypeRepas type; // Petit-déjeuner, Déjeuner, Dîner
+    private TypeRepas type;
 
     @Column(nullable = false)
     private double prix;

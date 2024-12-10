@@ -28,7 +28,7 @@ public class Paiement {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TypePaiement type; // Carte, Espèces
+    private TypePaiement type;
 
     @Column(name = "date_paiement", nullable = false)
     private LocalDateTime datePaiement = LocalDateTime.now();
