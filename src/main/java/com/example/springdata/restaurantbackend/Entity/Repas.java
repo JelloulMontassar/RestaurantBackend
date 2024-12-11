@@ -1,5 +1,6 @@
-package com.example.springdata.restaurantbackend.entities;
+package com.example.springdata.restaurantbackend.Entity;
 
+import com.example.springdata.restaurantbackend.Enums.TypeRepas;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;

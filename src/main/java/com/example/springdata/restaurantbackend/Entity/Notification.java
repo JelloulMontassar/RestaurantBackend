@@ -1,4 +1,4 @@
-package com.example.springdata.restaurantbackend.entities;
+package com.example.springdata.restaurantbackend.Entity;
 
 
 import jakarta.persistence.*;
