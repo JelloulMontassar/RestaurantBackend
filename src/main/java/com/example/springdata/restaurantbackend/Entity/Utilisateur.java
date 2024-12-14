@@ -41,10 +41,20 @@ public class Utilisateur {
     private RoleUtilisateur role;
 
     @Column(name = "createdAt", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "updatedAt", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 
 
 }

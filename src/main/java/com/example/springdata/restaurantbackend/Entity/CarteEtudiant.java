@@ -27,12 +27,26 @@ public class CarteEtudiant {
     private StatutCarte statut = StatutCarte.ACTIVE;
 
     @Column(name = "createdAt", nullable = false, updatable = false)
-    private LocalDateTime createdAt = LocalDateTime.now();
+    private LocalDateTime createdAt;
 
     @Column(name = "updatedAt", nullable = false)
-    private LocalDateTime updatedAt = LocalDateTime.now();
+    private LocalDateTime updatedAt;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "id_etudiant", nullable = false)
     private Utilisateur etudiant;
+
+    @Version
+    private int version;
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
