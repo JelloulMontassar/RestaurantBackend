@@ -16,8 +16,10 @@ public class RepasDTO {
     private Long id;
     private String nom;
     private TypeRepas type;
-    private double prix;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private List<IngredientDTO> ingredients;
+    private double prixTotal;
+
+
 }

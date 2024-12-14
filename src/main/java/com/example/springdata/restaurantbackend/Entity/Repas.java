@@ -28,7 +28,7 @@ public class Repas {
     private TypeRepas type;
 
     @Column(nullable = false)
-    private double prix;
+    private double prixTotal = 0.0;
 
     @Column(name = "createdAt", nullable = false, updatable = false)
     private LocalDateTime createdAt = LocalDateTime.now();
@@ -36,11 +36,22 @@ public class Repas {
     @Column(name = "updatedAt", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
 
-    @ManyToMany
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
             name = "repas_ingredients",
             joinColumns = @JoinColumn(name = "id_repas"),
             inverseJoinColumns = @JoinColumn(name = "id_ingredient")
     )
     private List<Ingredient> ingredients;
+
+    @PrePersist
+    @PreUpdate
+    public void calculerPrixTotal() {
+        if (ingredients != null) {
+            this.prixTotal = ingredients.stream()
+                    .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
+                    .sum();
+        }
+        this.updatedAt = LocalDateTime.now();
+    }
 }

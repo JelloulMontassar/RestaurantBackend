@@ -19,7 +19,7 @@ public class Ingredient {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nom;
 
     @Column(nullable = false)
@@ -28,6 +28,14 @@ public class Ingredient {
     @Column(nullable = false)
     private double seuil;
 
+    @Column(nullable = false)
+    private double prix;
+
     @Column(name = "updatedAt", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+    @PrePersist
+    protected void onCreate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
 }

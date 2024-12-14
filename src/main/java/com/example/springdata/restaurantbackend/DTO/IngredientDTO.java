@@ -1,8 +1,6 @@
 package com.example.springdata.restaurantbackend.DTO;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -15,5 +13,7 @@ public class IngredientDTO {
     private String nom;
     private double quantite;
     private double seuil;
+    private double prix;
     private LocalDateTime updatedAt;
-}
+
+    }
