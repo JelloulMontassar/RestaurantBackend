@@ -24,10 +24,10 @@ public class Utilisateur {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String nomUtilisateur;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String prenomUtilisateur;
 
     @Enumerated(EnumType.STRING)
