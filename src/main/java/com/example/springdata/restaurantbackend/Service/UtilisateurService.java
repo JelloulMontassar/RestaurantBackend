@@ -19,5 +19,24 @@ public class UtilisateurService {
     public UtilisateurDTO saveUtilisateur(Utilisateur utilisateur) {
         return UtilisateurMapper.toDTO(utilisateurRepository.save(utilisateur));
     }
+    public UtilisateurDTO getUtilisateurById(Long id) {
+        return UtilisateurMapper.toDTO(utilisateurRepository.findById(id).orElse(null));
+    }
+    public void deleteUtilisateur(Long id) {
+        utilisateurRepository.deleteById(id);
+    }
+    public UtilisateurDTO updateUtilisateur(Long id, Utilisateur utilisateur) {
+        Utilisateur existingUtilisateur = utilisateurRepository.findById(id).orElse(null);
+        if (existingUtilisateur != null) {
+            existingUtilisateur.setNomUtilisateur(utilisateur.getNomUtilisateur());
+            existingUtilisateur.setPrenomUtilisateur(utilisateur.getPrenomUtilisateur());
+            existingUtilisateur.setGenre(utilisateur.getGenre());
+            existingUtilisateur.setEmail(utilisateur.getEmail());
+            existingUtilisateur.setRole(utilisateur.getRole());
+            return UtilisateurMapper.toDTO(utilisateurRepository.save(existingUtilisateur));
+        }
+        return null;
+    }
+
 
 }

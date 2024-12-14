@@ -5,10 +5,8 @@ import com.example.springdata.restaurantbackend.Service.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @Controller
@@ -25,6 +23,20 @@ public class UtilisateurController {
     public ResponseEntity<UtilisateurDTO> saveUtilisateur(@RequestBody Utilisateur utilisateur) {
         return ResponseEntity.ok(utilisateurService.saveUtilisateur(utilisateur));
     }
+    @GetMapping("/{id}")
+    public ResponseEntity<UtilisateurDTO> getUtilisateurById(@PathVariable Long id) {
+        return ResponseEntity.ok(utilisateurService.getUtilisateurById(id));
+    }
+    @PostMapping("/supprimer/{id}")
+    public ResponseEntity<Void> deleteUtilisateur(@PathVariable Long id) {
+        utilisateurService.deleteUtilisateur(id);
+        return ResponseEntity.ok().build();
+    }
+    @PostMapping("/modifier/{id}")
+    public ResponseEntity<UtilisateurDTO> updateUtilisateur(@PathVariable Long id, @RequestBody Utilisateur utilisateur) {
+        return ResponseEntity.ok(utilisateurService.updateUtilisateur(id, utilisateur));
+    }
+
 
 
 }
