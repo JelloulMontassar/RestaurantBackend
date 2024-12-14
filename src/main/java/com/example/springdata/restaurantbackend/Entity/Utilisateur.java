@@ -3,18 +3,14 @@ package com.example.springdata.restaurantbackend.Entity;
 import com.example.springdata.restaurantbackend.Enums.Genre;
 import com.example.springdata.restaurantbackend.Enums.RoleUtilisateur;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 
 import java.time.LocalDateTime;
 
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "utilisateurs")

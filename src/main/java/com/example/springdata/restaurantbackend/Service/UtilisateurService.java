@@ -1,6 +1,4 @@
 package com.example.springdata.restaurantbackend.Service;
-
-import com.example.springdata.restaurantbackend.Controller.UtilisateurController;
 import com.example.springdata.restaurantbackend.DTO.UtilisateurDTO;
 import com.example.springdata.restaurantbackend.Entity.Utilisateur;
 import com.example.springdata.restaurantbackend.Mapper.UtilisateurMapper;
@@ -15,10 +13,11 @@ import java.util.stream.Collectors;
 public class UtilisateurService {
     @Autowired
     private UtilisateurRepository utilisateurRepository;
-    public List<Utilisateur> getAllUsers() {
-        return utilisateurRepository.findAll();
+    public List<UtilisateurDTO> getAllUsers() {
+        return utilisateurRepository.findAll().stream().map(UtilisateurMapper::toDTO).collect(Collectors.toList());
     }
-    public Utilisateur saveUtilisateur(Utilisateur utilisateur) {
-        return utilisateurRepository.save(utilisateur);
+    public UtilisateurDTO saveUtilisateur(Utilisateur utilisateur) {
+        return UtilisateurMapper.toDTO(utilisateurRepository.save(utilisateur));
     }
+
 }

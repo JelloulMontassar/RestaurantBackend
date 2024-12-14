@@ -18,5 +18,5 @@ public class CarteEtudiantDTO {
         private LocalDateTime createdAt;
         private LocalDateTime updatedAt;
         private UtilisateurDTO etudiant;
-    }
+
 }

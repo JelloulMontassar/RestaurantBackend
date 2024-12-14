@@ -2,13 +2,13 @@ package com.example.springdata.restaurantbackend.DTO;
 
 import com.example.springdata.restaurantbackend.Enums.Genre;
 import com.example.springdata.restaurantbackend.Enums.RoleUtilisateur;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Data
+@Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 public class UtilisateurDTO {
