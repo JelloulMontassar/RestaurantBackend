@@ -48,15 +48,12 @@ public class Repas {
     @PreUpdate
     public void calculerPrixTotal() {
         if (ingredients != null) {
+            // Calcul du prix total basé uniquement sur la quantité choisie et le prix unitaire
             this.prixTotal = ingredients.stream()
-                    .mapToDouble(ingredient -> {
-                        // Trouver la quantité choisie pour cet ingrédient dans le repas
-                        double quantiteChoisie = ingredient.getQuantite();
-                        // Calculer le prix pour la quantité choisie
-                        return quantiteChoisie * ingredient.getPrix();
-                    })
+                    .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix()) // Quantité choisie * Prix
                     .sum();
         }
         this.updatedAt = LocalDateTime.now();
     }
+
 }
