@@ -34,24 +34,46 @@ public class RepasService {
         return RepasMapper.toDTO(repasRepository.findById(id).orElse(null));
     }
 
-    @Transactional // Assurez-vous d'avoir une transaction active
+    @Transactional
     public RepasDTO saveRepas(RepasDTO repasDTO) {
         Repas repas = RepasMapper.toEntity(repasDTO);
 
-        // Vérification et mise à jour des quantités des ingrédients
-        List<Ingredient> updatedIngredients = repas.getIngredients().stream()
-                .map(ingredient -> updateIngredientQuantity(ingredient))
-                .collect(Collectors.toList());
+        // Mise à jour des ingrédients et validation des quantités disponibles
+        repas.setIngredients(repas.getIngredients().stream()
+                .map(ingredient -> {
+                    Ingredient existingIngredient = ingredientRepository.findById(ingredient.getId())
+                            .orElseThrow(() -> new RuntimeException("Ingredient not found: " + ingredient.getId()));
 
-        // Appliquer les modifications aux ingrédients
-        repas.setIngredients(updatedIngredients);
+                    // Vérifier si la quantité demandée est disponible
+                    if (existingIngredient.getQuantite() < ingredient.getQuantite()) {
+                        throw new RuntimeException("Quantité insuffisante pour l'ingrédient : " + existingIngredient.getNom() +
+                                ". Disponible : " + existingIngredient.getQuantite() + ", demandé : " + ingredient.getQuantite());
+                    }
 
-        // Calculer le prix total du repas
+                    // Réduire la quantité disponible dans la base
+                    existingIngredient.setQuantite(existingIngredient.getQuantite() - ingredient.getQuantite());
+
+                    // Associer le prix de l'ingrédient existant
+                    ingredient.setPrix(existingIngredient.getPrix());
+
+                    // Rétablir la quantité choisie pour le calcul du prix total
+                    ingredient.setQuantite(ingredient.getQuantite());
+
+                    // Sauvegarder les modifications
+                    ingredientRepository.save(existingIngredient);
+
+                    return ingredient;
+                })
+                .collect(Collectors.toList()));
+
+        // Calcul du prix total basé sur les quantités choisies
         repas.calculerPrixTotal();
 
         // Sauvegarder le repas et retourner le DTO
         return RepasMapper.toDTO(repasRepository.save(repas));
     }
+
+
 
     private Ingredient updateIngredientQuantity(Ingredient requestedIngredient) {
         Ingredient existingIngredient = ingredientRepository.findById(requestedIngredient.getId())
