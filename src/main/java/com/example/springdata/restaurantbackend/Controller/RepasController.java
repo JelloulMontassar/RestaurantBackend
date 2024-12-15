@@ -4,12 +4,14 @@ import com.example.springdata.restaurantbackend.DTO.RepasDTO;
 import com.example.springdata.restaurantbackend.Service.RepasService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
 @RequestMapping("/api/repas")
+@Validated
 public class RepasController {
 
     @Autowired

@@ -1,12 +1,13 @@
 package com.example.springdata.restaurantbackend.Mapper;
 
-import com.example.springdata.restaurantbackend.DTO.IngredientDTO;
 import com.example.springdata.restaurantbackend.DTO.RepasDTO;
 import com.example.springdata.restaurantbackend.Entity.Repas;
 
 import java.util.stream.Collectors;
 
 public class RepasMapper {
+
+    // Conversion d'un repas en DTO
     public static RepasDTO toDTO(Repas repas) {
         if (repas == null) {
             return null;
@@ -18,13 +19,13 @@ public class RepasMapper {
                 repas.getCreatedAt(),
                 repas.getUpdatedAt(),
                 repas.getIngredients().stream()
-                        .map(IngredientMapper::toDTO)
+                        .map(IngredientMapper::toDTO) // Conversion des ingrédients en DTO
                         .collect(Collectors.toList()),
-                repas.getPrixTotal()
-
+                repas.getPrixTotal() // Ajouter le prix total dans le DTO
         );
     }
 
+    // Conversion d'un DTO en entité Repas
     public static Repas toEntity(RepasDTO repasDTO) {
         if (repasDTO == null) {
             return null;
@@ -35,10 +36,20 @@ public class RepasMapper {
         repas.setType(repasDTO.getType());
         repas.setIngredients(
                 repasDTO.getIngredients().stream()
-                        .map(IngredientMapper::toEntity)
+                        .map(IngredientMapper::toEntity) // Conversion des ingrédients en entité
                         .collect(Collectors.toList())
         );
-
+        repas.setPrixTotal(calculatePrixTotal(repas)); // Calcul du prix total lors de la conversion
         return repas;
+    }
+
+    // Calcul du prix total lors de la conversion depuis un DTO vers une entité
+    private static double calculatePrixTotal(Repas repas) {
+        if (repas.getIngredients() != null) {
+            return repas.getIngredients().stream()
+                    .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
+                    .sum();
+        }
+        return 0.0;
     }
 }

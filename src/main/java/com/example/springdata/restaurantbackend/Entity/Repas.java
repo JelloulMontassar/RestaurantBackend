@@ -49,7 +49,12 @@ public class Repas {
     public void calculerPrixTotal() {
         if (ingredients != null) {
             this.prixTotal = ingredients.stream()
-                    .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
+                    .mapToDouble(ingredient -> {
+                        // Trouver la quantité choisie pour cet ingrédient dans le repas
+                        double quantiteChoisie = ingredient.getQuantite();
+                        // Calculer le prix pour la quantité choisie
+                        return quantiteChoisie * ingredient.getPrix();
+                    })
                     .sum();
         }
         this.updatedAt = LocalDateTime.now();
