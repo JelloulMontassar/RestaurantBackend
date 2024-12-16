@@ -16,7 +16,8 @@ public class IngredientMapper {
                 ingredient.getQuantite(),
                 ingredient.getSeuil(),
                 ingredient.getPrix(),
-                ingredient.getUpdatedAt() // Ajout de updatedAt
+                ingredient.getUpdatedAt(),
+                ingredient.getQuantiteRestante()
         );
     }
 
@@ -31,6 +32,7 @@ public class IngredientMapper {
         ingredient.setQuantite(ingredientDTO.getQuantite());
         ingredient.setSeuil(ingredientDTO.getSeuil());
         ingredient.setPrix(ingredientDTO.getPrix());
+        ingredient.setQuantiteRestante(ingredientDTO.getQuantiteRestante());
         ingredient.setUpdatedAt(ingredientDTO.getUpdatedAt() != null ? ingredientDTO.getUpdatedAt() : LocalDateTime.now());
         return ingredient;
     }

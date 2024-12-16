@@ -20,13 +20,11 @@ public class RepasDTO {
     @NotBlank(message = "Le nom du repas ne peut pas être vide.")
     private String nom;
 
-    @NotBlank(message = "Le type du repas est obligatoire.")
+    @NotNull(message = "Le type du repas est obligatoire.")
     private TypeRepas type;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
-
-    @NotNull(message = "La liste des ingrédients ne peut pas être nulle.")
     private List<IngredientDTO> ingredients;
     private double prixTotal;
 

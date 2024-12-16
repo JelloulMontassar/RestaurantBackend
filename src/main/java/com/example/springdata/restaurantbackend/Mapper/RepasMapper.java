@@ -1,5 +1,6 @@
 package com.example.springdata.restaurantbackend.Mapper;
 
+import com.example.springdata.restaurantbackend.DTO.IngredientDTO;
 import com.example.springdata.restaurantbackend.DTO.RepasDTO;
 import com.example.springdata.restaurantbackend.Entity.Repas;
 
@@ -19,7 +20,12 @@ public class RepasMapper {
                 repas.getCreatedAt(),
                 repas.getUpdatedAt(),
                 repas.getIngredients().stream()
-                        .map(IngredientMapper::toDTO) // Conversion des ingrédients en DTO
+                        .map(ingredient -> {
+                            // Conversion des ingrédients avec ajout de quantiteRestante
+                            IngredientDTO ingredientDTO = IngredientMapper.toDTO(ingredient);
+                            ingredientDTO.setQuantiteRestante(ingredient.getQuantite()); // Ajout de quantiteRestante
+                            return ingredientDTO;
+                        })
                         .collect(Collectors.toList()),
                 repas.getPrixTotal() // Ajouter le prix total dans le DTO
         );

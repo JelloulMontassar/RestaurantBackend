@@ -1,5 +1,6 @@
 package com.example.springdata.restaurantbackend.Service;
 
+import com.example.springdata.restaurantbackend.DTO.IngredientDTO;
 import com.example.springdata.restaurantbackend.DTO.RepasDTO;
 import com.example.springdata.restaurantbackend.Entity.Ingredient;
 import com.example.springdata.restaurantbackend.Entity.Repas;
@@ -11,7 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -34,70 +34,71 @@ public class RepasService {
         return RepasMapper.toDTO(repasRepository.findById(id).orElse(null));
     }
 
-    @Transactional
+   @Transactional
     public RepasDTO saveRepas(RepasDTO repasDTO) {
-        Repas repas = RepasMapper.toEntity(repasDTO);
+        // Conteneur mutable pour le prix total
+        final double[] prixTotal = {0.0};
 
-        // Mise à jour des ingrédients et validation des quantités disponibles
-        repas.setIngredients(repas.getIngredients().stream()
-                .map(ingredient -> {
-                    Ingredient existingIngredient = ingredientRepository.findById(ingredient.getId())
-                            .orElseThrow(() -> new RuntimeException("Ingredient not found: " + ingredient.getId()));
+        // Créer un nouvel objet Repas
+        Repas repas = new Repas();
+        repas.setNom(repasDTO.getNom());
+        repas.setType(repasDTO.getType());
 
-                    // Vérifier si la quantité demandée est disponible
-                    if (existingIngredient.getQuantite() < ingredient.getQuantite()) {
-                        throw new RuntimeException("Quantité insuffisante pour l'ingrédient : " + existingIngredient.getNom() +
-                                ". Disponible : " + existingIngredient.getQuantite() + ", demandé : " + ingredient.getQuantite());
-                    }
+        List<Ingredient> updatedIngredients = repasDTO.getIngredients().stream().map(ingredientDTO -> {
+            // Récupérer l'ingrédient existant dans la base de données
+            Ingredient existingIngredient = ingredientRepository.findById(ingredientDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Ingrédient non trouvé : " + ingredientDTO.getId()));
 
-                    // Réduire la quantité disponible dans la base
-                    existingIngredient.setQuantite(existingIngredient.getQuantite() - ingredient.getQuantite());
+            // Vérifier la quantité disponible
+            double quantiteRestante = existingIngredient.getQuantite() - ingredientDTO.getQuantite();
+            if (quantiteRestante < 0) {
+                throw new RuntimeException("Quantité insuffisante pour l'ingrédient : " + existingIngredient.getNom());
+            }
 
-                    // Associer le prix de l'ingrédient existant
-                    ingredient.setPrix(existingIngredient.getPrix());
+            // Mettre à jour la quantité restante de l'ingrédient
+            existingIngredient.setQuantite(quantiteRestante);
+            ingredientRepository.save(existingIngredient); // Sauvegarder la mise à jour dans la base de données
 
-                    // Rétablir la quantité choisie pour le calcul du prix total
-                    ingredient.setQuantite(ingredient.getQuantite());
+            // Créer un nouvel objet Ingredient à associer au repas
+            Ingredient repasIngredient = new Ingredient();
+            repasIngredient.setId(existingIngredient.getId());
+            repasIngredient.setNom(existingIngredient.getNom());
+            repasIngredient.setPrix(existingIngredient.getPrix());
+            repasIngredient.setQuantite(ingredientDTO.getQuantite()); // Quantité utilisée
+            repasIngredient.setQuantiteRestante(quantiteRestante);   // Nouvelle quantité restante
 
-                    // Sauvegarder les modifications
-                    ingredientRepository.save(existingIngredient);
+            // Ajouter au prix total
+            prixTotal[0] += ingredientDTO.getQuantite() * existingIngredient.getPrix();
 
-                    return ingredient;
-                })
-                .collect(Collectors.toList()));
+            return repasIngredient;
+        }).collect(Collectors.toList());
 
-        // Calcul du prix total basé sur les quantités choisies
-        repas.calculerPrixTotal();
+        // Associer les ingrédients au repas
+        repas.setIngredients(updatedIngredients);
+        repas.setPrixTotal(prixTotal[0]); // Mettre à jour le prix total
 
-        // Sauvegarder le repas et retourner le DTO
-        return RepasMapper.toDTO(repasRepository.save(repas));
+        // Sauvegarder le repas
+        Repas savedRepas = repasRepository.save(repas);
+
+        // Mapper vers le DTO
+        RepasDTO savedRepasDTO = RepasMapper.toDTO(savedRepas);
+
+        // Ajouter les quantités restantes des ingrédients au DTO
+        savedRepasDTO.getIngredients().forEach(ingredientDTO -> {
+            Ingredient matchingIngredient = updatedIngredients.stream()
+                    .filter(ingredient -> ingredient.getId().equals(ingredientDTO.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            if (matchingIngredient != null) {
+                ingredientDTO.setQuantiteRestante(matchingIngredient.getQuantiteRestante());
+            }
+        });
+
+        return savedRepasDTO;
     }
 
 
-
-    private Ingredient updateIngredientQuantity(Ingredient requestedIngredient) {
-        Ingredient existingIngredient = ingredientRepository.findById(requestedIngredient.getId())
-                .orElseThrow(() -> new RuntimeException("Ingrédient non trouvé : " + requestedIngredient.getId()));
-
-        if (existingIngredient.getQuantite() < requestedIngredient.getQuantite()) {
-            throw new IllegalArgumentException(
-                    "Quantité insuffisante pour l'ingrédient : " + existingIngredient.getNom() +
-                            ". Disponible : " + existingIngredient.getQuantite() + ", demandé : " + requestedIngredient.getQuantite());
-        }
-
-        // Réduire la quantité disponible
-        existingIngredient.setQuantite(existingIngredient.getQuantite() - requestedIngredient.getQuantite());
-
-        // Retourner l'ingrédient mis à jour sans sauvegarder immédiatement
-        return existingIngredient;
-    }
-
-
-
-
-    public void deleteRepas(Long id) {
-        repasRepository.deleteById(id);
-    }
 
     public RepasDTO updateRepas(Long id, RepasDTO repasDTO) {
         Repas existingRepas = repasRepository.findById(id).orElse(null);
@@ -133,20 +134,11 @@ public class RepasService {
                 .sum();
     }
 
-    private void validateIngredientQuantities(Repas repas) {
-        for (Ingredient ingredient : repas.getIngredients()) {
-            // Récupérer l'ingrédient dans la base de données
-            Ingredient existingIngredient = ingredientRepository.findById(ingredient.getId())
-                    .orElseThrow(() -> new RuntimeException("Ingrédient introuvable : " + ingredient.getId()));
-
-            // Vérifier si la quantité demandée dépasse celle disponible
-            if (ingredient.getQuantite() > existingIngredient.getQuantite()) {
-                throw new RuntimeException("Quantité insuffisante pour l'ingrédient : " + existingIngredient.getNom() +
-                        ". Disponible : " + existingIngredient.getQuantite() + ", demandé : " + ingredient.getQuantite());
-            }
-        }
+    public void deleteRepas(Long id) {
+        repasRepository.deleteById(id);
     }
 
+    // Méthodes privées pour gérer la mise à jour des quantités d'ingrédients
     private void updateIngredientQuantities(Repas repas) {
         for (Ingredient ingredient : repas.getIngredients()) {
             // Récupérer l'ingrédient dans la base de données
@@ -160,5 +152,19 @@ public class RepasService {
             ingredientRepository.save(existingIngredient);
         }
     }
-}
 
+    private void validateIngredientQuantities(RepasDTO repasDTO) {
+        for (IngredientDTO ingredientDTO : repasDTO.getIngredients()) {
+            // Convertir IngredientDTO en Ingredient pour accéder à la base de données
+            Ingredient existingIngredient = ingredientRepository.findById(ingredientDTO.getId())
+                    .orElseThrow(() -> new RuntimeException("Ingrédient introuvable : " + ingredientDTO.getId()));
+
+            // Vérifier si la quantité demandée dépasse celle disponible
+            if (ingredientDTO.getQuantite() > existingIngredient.getQuantite()) {
+                throw new RuntimeException("Quantité insuffisante pour l'ingrédient : " + existingIngredient.getNom() +
+                        ". Disponible : " + existingIngredient.getQuantite() + ", demandé : " + ingredientDTO.getQuantite());
+            }
+        }
+    }
+
+}

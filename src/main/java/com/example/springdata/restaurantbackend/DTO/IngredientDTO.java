@@ -15,5 +15,5 @@ public class IngredientDTO {
     private double seuil;
     private double prix;
     private LocalDateTime updatedAt;
-
+    private double quantiteRestante;
     }

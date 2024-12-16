@@ -31,10 +31,18 @@ public class Ingredient {
     @Column(nullable = false)
     private double prix;
 
+    @Transient // Ne sera pas persisté dans la base de données
+    private double quantiteRestante;
+
     @Column(name = "updatedAt", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
-    @PrePersist
+    /*@PrePersist
     protected void onCreate() {
+        this.updatedAt = LocalDateTime.now();
+    }*/
+    @PrePersist
+    @PreUpdate
+    protected void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
 

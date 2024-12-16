@@ -45,15 +45,24 @@ public class Repas {
     private List<Ingredient> ingredients;
 
     @PrePersist
+    protected void onCreate() {
+        this.createdAt = LocalDateTime.now();
+        this.updatedAt = LocalDateTime.now();
+        calculerPrixTotal();
+    }
+
     @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+        calculerPrixTotal();
+    }
+
     public void calculerPrixTotal() {
         if (ingredients != null) {
-            // Calcul du prix total basé uniquement sur la quantité choisie et le prix unitaire
             this.prixTotal = ingredients.stream()
-                    .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix()) // Quantité choisie * Prix
+                    .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
                     .sum();
         }
-        this.updatedAt = LocalDateTime.now();
     }
 
 }
