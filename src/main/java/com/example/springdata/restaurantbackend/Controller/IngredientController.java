@@ -31,17 +31,21 @@ public class IngredientController {
         return ResponseEntity.ok(ingredientDTO);
     }
 
-    // Ajouter un nouvel ingrédient
     @PostMapping("/ajouter")
-    public ResponseEntity<IngredientDTO> createIngredient(@RequestBody IngredientDTO ingredientDTO) {
+    public ResponseEntity<?> createIngredient(@RequestBody IngredientDTO ingredientDTO) {
         if (ingredientDTO.getPrix() <= 0) {
-            return ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().body("Le prix doit être supérieur à 0.");
         }
-        IngredientDTO savedIngredient = ingredientService.saveIngredient(ingredientDTO);
-        return ResponseEntity.ok(savedIngredient);
+        try {
+            IngredientDTO savedIngredient = ingredientService.saveIngredient(ingredientDTO);
+            return ResponseEntity.ok(savedIngredient);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(409).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Erreur lors de l'ajout de l'ingrédient.");
+        }
     }
-
-    // Mettre à jour un ingrédient existant
+    
     @PutMapping("/{id}")
     public ResponseEntity<IngredientDTO> updateIngredient(
             @PathVariable Long id,

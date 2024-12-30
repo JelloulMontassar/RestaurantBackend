@@ -32,9 +32,19 @@ public class IngredientService {
     }
 
     public IngredientDTO saveIngredient(IngredientDTO ingredientDTO) {
-        Ingredient ingredient = IngredientMapper.toEntity(ingredientDTO);
-        System.out.println("Entity before save: " + ingredient);
-        return IngredientMapper.toDTO(ingredientRepository.save(ingredient));
+        if (ingredientRepository.existsByNom(ingredientDTO.getNom())) {
+            throw new IllegalArgumentException("L'ingrédient existe déjà : " + ingredientDTO.getNom());
+        }
+        try {
+            Ingredient ingredient = IngredientMapper.toEntity(ingredientDTO);
+            return IngredientMapper.toDTO(ingredientRepository.save(ingredient));
+        } catch (Exception e) {
+            // Gérer les exceptions de type violation de contrainte
+            if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
+                throw new IllegalArgumentException("Contrainte d'unicité violée : " + e.getMessage());
+            }
+            throw e; // Propager d'autres exceptions
+        }
     }
 
     public void deleteIngredient(Long id) {

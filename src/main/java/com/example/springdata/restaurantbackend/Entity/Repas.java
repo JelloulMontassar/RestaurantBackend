@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -35,6 +36,10 @@ public class Repas {
 
     @Column(name = "updatedAt", nullable = false)
     private LocalDateTime updatedAt = LocalDateTime.now();
+
+    @ManyToMany(mappedBy = "repas")
+    private List<Menu> menus = new ArrayList<>();
+
 
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(

@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -23,6 +24,11 @@ public class Menu {
     @Column(nullable = false)
     private LocalDateTime date;
 
-    @OneToMany
-    private List<Repas> repas;
+    @ManyToMany
+    @JoinTable(
+            name = "menus_repas",
+            joinColumns = @JoinColumn(name = "menu_id"),
+            inverseJoinColumns = @JoinColumn(name = "repas_id")
+    )
+    private List<Repas> repas = new ArrayList<>();
 }
