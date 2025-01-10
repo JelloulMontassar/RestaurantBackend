@@ -7,6 +7,7 @@ import com.example.springdata.restaurantbackend.Repository.PaiementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,4 +43,32 @@ public class PaiementService {
     public Paiement updatePaiement(Paiement paiement) {
         return paiementRepository.save(paiement);
     }
+
+    /*public List<Paiement> getPaiementsByUtilisateur(Long utilisateurId, LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null && endDate != null) {
+            return paiementRepository.findByUtilisateurIdAndDatePaiementBetween(utilisateurId, startDate, endDate);
+        } else {
+            return paiementRepository.findByUtilisateur(utilisateurId);
+        }
+    }*/
+
+    public List<Paiement> getPaiementsByUtilisateur(Long utilisateurId, LocalDateTime startDate, LocalDateTime endDate) {
+        if (startDate != null && endDate != null) {
+            return paiementRepository.findByUtilisateurIdAndDatePaiementBetween(utilisateurId, startDate, endDate);
+        } else {
+            return paiementRepository.findByUtilisateur_Id(utilisateurId);
+        }
+    }
+
+
+    private LocalDateTime parseDate(String dateStr, boolean isStartOfDay) {
+        if (dateStr.length() == 10) { // Format: yyyy-MM-dd
+            LocalDate date = LocalDate.parse(dateStr); // Parse to LocalDate
+            return isStartOfDay ? date.atStartOfDay() : date.atTime(23, 59, 59);
+        }
+        return LocalDateTime.parse(dateStr); // Parse full LocalDateTime
+    }
+
+
+
 }
