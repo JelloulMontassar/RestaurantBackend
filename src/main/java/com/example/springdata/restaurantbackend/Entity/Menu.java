@@ -22,7 +22,10 @@ public class Menu {
     private Long id;
 
     @Column(nullable = false)
-    private LocalDateTime date;
+    private LocalDateTime startDate;
+
+    @Column(nullable = false)
+    private LocalDateTime endDate;
 
     @ManyToMany
     @JoinTable(

@@ -13,6 +13,7 @@ import java.util.List;
 public class MenuDTO {
 
     private Long id;
-    private LocalDateTime date;
+    private LocalDateTime startDate;
+    private LocalDateTime endDate;
     private List<RepasDTO> repas;
 }
