@@ -4,6 +4,7 @@ import com.example.springdata.restaurantbackend.DTO.IngredientDTO;
 import com.example.springdata.restaurantbackend.DTO.RepasDTO;
 import com.example.springdata.restaurantbackend.Entity.Ingredient;
 import com.example.springdata.restaurantbackend.Entity.Repas;
+import com.example.springdata.restaurantbackend.Enums.TypeRepas;
 import com.example.springdata.restaurantbackend.Mapper.RepasMapper;
 import com.example.springdata.restaurantbackend.Repository.IngredientRepository;
 import com.example.springdata.restaurantbackend.Repository.RepasRepository;
@@ -176,4 +177,10 @@ public class RepasService {
         }
     }
 
+    public List<RepasDTO> getRepasByType(TypeRepas type) {
+        return repasRepository.findByType(type)
+                .stream()
+                .map(RepasMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }

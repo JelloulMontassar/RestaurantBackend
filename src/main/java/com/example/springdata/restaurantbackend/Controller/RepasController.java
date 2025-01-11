@@ -2,6 +2,7 @@ package com.example.springdata.restaurantbackend.Controller;
 
 import com.example.springdata.restaurantbackend.DTO.CarteEtudiantDTO;
 import com.example.springdata.restaurantbackend.DTO.RepasDTO;
+import com.example.springdata.restaurantbackend.Enums.TypeRepas;
 import com.example.springdata.restaurantbackend.Requests.PayerRepasRequest;
 import com.example.springdata.restaurantbackend.Service.CarteEtudiantService;
 import com.example.springdata.restaurantbackend.Service.MenuService;
@@ -104,4 +105,9 @@ public class RepasController {
     }
 
 
+    //endpoint pour filtrer les repas
+    @GetMapping("/type")
+    public List<RepasDTO> getRepasByType(@RequestParam TypeRepas type) {
+        return repasService.getRepasByType(type);
+    }
 }
