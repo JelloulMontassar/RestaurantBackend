@@ -7,9 +7,8 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Data
-public class MenuPlanificationRequest {
-    private LocalDate startDate;
-    private LocalDate endDate;
-    private List<List<Long>> repasIds;
+public class DailyMenuRequest {
+    private LocalDate date;
+    private List<Long> repasIds;
     private MenuType type;
 }

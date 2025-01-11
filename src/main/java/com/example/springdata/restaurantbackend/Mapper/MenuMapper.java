@@ -17,6 +17,7 @@ public class MenuMapper {
         }
         return new MenuDTO(
                 menu.getId(),
+                menu.getType(),
                 menu.getStartDate(),
                 menu.getEndDate(),
                 menu.getRepas().stream()
@@ -30,6 +31,7 @@ public class MenuMapper {
 
         Menu menu = new Menu();
         menu.setId(menuDTO.getId());
+        menu.setType(menuDTO.getType());
         menu.setStartDate(menuDTO.getStartDate());
         menu.setEndDate(menuDTO.getEndDate());
 
