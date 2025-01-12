@@ -32,5 +32,5 @@ public class Paiement {
     private TypePaiement type;
 
     @Column(name = "date_paiement", nullable = false)
-    private LocalDateTime datePaiement = LocalDateTime.now();
+    private LocalDateTime datePaiement;
 }

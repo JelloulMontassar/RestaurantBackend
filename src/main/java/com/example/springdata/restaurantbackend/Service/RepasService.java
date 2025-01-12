@@ -4,6 +4,7 @@ import com.example.springdata.restaurantbackend.DTO.IngredientDTO;
 import com.example.springdata.restaurantbackend.DTO.RepasDTO;
 import com.example.springdata.restaurantbackend.Entity.Ingredient;
 import com.example.springdata.restaurantbackend.Entity.Repas;
+import com.example.springdata.restaurantbackend.Enums.TypeRepas;
 import com.example.springdata.restaurantbackend.Mapper.RepasMapper;
 import com.example.springdata.restaurantbackend.Repository.IngredientRepository;
 import com.example.springdata.restaurantbackend.Repository.RepasRepository;
@@ -133,14 +134,23 @@ public class RepasService {
         return null;
     }
 
-    public double calculerPrixTotalRepas(Long repasId) {
+    public double calculerPrixTotalRepas(List<Long> repasIds) {
         // Récupérer le repas par ID
-        Repas repas = repasRepository.findById(repasId)
+        /*Repas repas = repasRepository.findById(repasId)
                 .orElseThrow(() -> new RuntimeException("Repas introuvable"));
 
         // Calculer le prix total (quantité choisie * prix unitaire pour chaque ingrédient)
         return repas.getIngredients().stream()
                 .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
+                .sum();*/
+        List<Repas> repasList = repasRepository.findAllById(repasIds);
+        if (repasList.size() != repasIds.size()) {
+            throw new RuntimeException("Certains repas sont introuvables.");
+        }
+        return repasList.stream()
+                .mapToDouble(repas -> repas.getIngredients().stream()
+                        .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
+                        .sum())
                 .sum();
     }
 
@@ -177,4 +187,10 @@ public class RepasService {
         }
     }
 
+    public List<RepasDTO> getRepasByType(TypeRepas type) {
+        return repasRepository.findByType(type)
+                .stream()
+                .map(RepasMapper::toDTO)
+                .collect(Collectors.toList());
+    }
 }

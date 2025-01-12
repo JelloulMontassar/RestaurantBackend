@@ -1,6 +1,6 @@
 package com.example.springdata.restaurantbackend.Enums;
 
-public enum TypePaiement {
-    CARTE_ETUDIANT,
-    ESPECES
+public enum MenuType {
+    QUOTIDIEN,
+    HEBDOMADAIRE
 }

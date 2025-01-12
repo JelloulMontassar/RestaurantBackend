@@ -39,11 +39,10 @@ public class IngredientService {
             Ingredient ingredient = IngredientMapper.toEntity(ingredientDTO);
             return IngredientMapper.toDTO(ingredientRepository.save(ingredient));
         } catch (Exception e) {
-            // Gérer les exceptions de type violation de contrainte
             if (e.getCause() instanceof org.hibernate.exception.ConstraintViolationException) {
                 throw new IllegalArgumentException("Contrainte d'unicité violée : " + e.getMessage());
             }
-            throw e; // Propager d'autres exceptions
+            throw e;
         }
     }
 

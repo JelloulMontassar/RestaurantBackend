@@ -8,19 +8,24 @@ import com.example.springdata.restaurantbackend.DTO.CarteEtudiantDTO;
 import com.example.springdata.restaurantbackend.DTO.UtilisateurDTO;
 import com.example.springdata.restaurantbackend.Entity.CarteEtudiant;
 import com.example.springdata.restaurantbackend.Entity.HistoriqueRecharge;
+import com.example.springdata.restaurantbackend.Entity.Paiement;
 import com.example.springdata.restaurantbackend.Entity.Utilisateur;
 import com.example.springdata.restaurantbackend.Enums.StatutCarte;
+import com.example.springdata.restaurantbackend.Enums.TypePaiement;
 import com.example.springdata.restaurantbackend.Mapper.CarteEtudiantMapper;
 import com.example.springdata.restaurantbackend.Repository.CarteEtudiantRepository;
 import com.example.springdata.restaurantbackend.Repository.HistoriqueRechargeRepository;
+import com.example.springdata.restaurantbackend.Repository.PaiementRepository;
+import com.example.springdata.restaurantbackend.Requests.PayerRepasRequest;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -37,9 +42,22 @@ public class CarteEtudiantService {
     private UtilisateurService utilisateurService;
 
     @Autowired
-    private final SMSService smsService;
+    private SMSService smsService;
+
     @Autowired
     private JavaMailSender javaMailSender;
+
+    @Autowired
+    private RepasService repasService;
+
+    @Autowired
+    private PaiementService paiementService;
+
+    @Autowired
+    private MenuService menuService;
+
+    @Autowired
+    private PaiementRepository paiementRepository;
 
     private void sendEmail(String to, String subject, String body) {
         SimpleMailMessage message = new SimpleMailMessage();
@@ -49,10 +67,6 @@ public class CarteEtudiantService {
         message.setFrom("choeurproject@gmail.com");
         javaMailSender.send(message);
     }
-    public CarteEtudiantService(SMSService smsService) {
-        this.smsService = smsService;
-    }
-
 
     public List<CarteEtudiantDTO> getAllCartesEtudiants() {
         return carteEtudiantRepository.findAll().stream()
@@ -63,7 +77,7 @@ public class CarteEtudiantService {
     public CarteEtudiantDTO saveCarteEtudiant(CarteEtudiantDTO carteEtudiantDTO) {
         UtilisateurDTO utilisateur = utilisateurService.getUtilisateurById(carteEtudiantDTO.getEtudiant().getId());
         if (utilisateur == null) {
-            return null;
+            throw new IllegalArgumentException("Utilisateur introuvable.");
         }
         carteEtudiantDTO.setEtudiant(utilisateur);
         CarteEtudiant carteEtudiant = CarteEtudiantMapper.toEntity(carteEtudiantDTO);
@@ -71,42 +85,45 @@ public class CarteEtudiantService {
     }
 
     public CarteEtudiantDTO getCarteEtudiantById(Long id) {
-        CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(id)).orElse(null);
-        return CarteEtudiantMapper.toDTO(carteEtudiant);
+        return carteEtudiantRepository.findById(Math.toIntExact(id))
+                .map(CarteEtudiantMapper::toDTO)
+                .orElseThrow(() -> new IllegalArgumentException("Carte étudiant introuvable."));
     }
 
     public void deleteCarteEtudiant(Long id) {
+        if (!carteEtudiantRepository.existsById(Math.toIntExact(id))) {
+            throw new IllegalArgumentException("Carte étudiant introuvable pour suppression.");
+        }
         carteEtudiantRepository.deleteById(Math.toIntExact(id));
     }
 
     public CarteEtudiantDTO updateSolde(Long id, double solde) {
-        CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(id)).orElse(null);
-        if (carteEtudiant != null) {
-            carteEtudiant.setSolde(solde + carteEtudiant.getSolde());
-            carteEtudiantRepository.save(carteEtudiant);
-            HistoriqueRecharge historiqueRecharge = new HistoriqueRecharge();
-            historiqueRecharge.setCarteEtudiant(carteEtudiant);
-            historiqueRecharge.setMontant(solde);
-            historiqueRechargeRepository.save(historiqueRecharge);
+        CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new IllegalArgumentException("Carte étudiant introuvable."));
 
-            return CarteEtudiantMapper.toDTO(carteEtudiant);
-        }
-        return null;
+        carteEtudiant.setSolde(carteEtudiant.getSolde() + solde);
+        carteEtudiantRepository.save(carteEtudiant);
+
+        HistoriqueRecharge historiqueRecharge = new HistoriqueRecharge();
+        historiqueRecharge.setCarteEtudiant(carteEtudiant);
+        historiqueRecharge.setMontant(solde);
+        historiqueRechargeRepository.save(historiqueRecharge);
+
+        return CarteEtudiantMapper.toDTO(carteEtudiant);
     }
 
     public CarteEtudiantDTO blockCarteEtudiant(Long id) {
-        CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(id)).orElse(null);
-        if (carteEtudiant != null) {
-            carteEtudiant.setStatut(StatutCarte.BLOQUEE);
-            return CarteEtudiantMapper.toDTO(carteEtudiantRepository.save(carteEtudiant));
-        }
-        return null;
+        CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(id))
+                .orElseThrow(() -> new IllegalArgumentException("Carte étudiant introuvable."));
+
+        carteEtudiant.setStatut(StatutCarte.BLOQUEE);
+        return CarteEtudiantMapper.toDTO(carteEtudiantRepository.save(carteEtudiant));
     }
 
     public List<HistoriqueRecharge> getHistoriqueRecharge(Long carteEtudiantId) {
         return historiqueRechargeRepository.findByCarteEtudiantId(carteEtudiantId);
     }
-    // Scheduler method to check balances and send SMS
+
     @Transactional
     @Scheduled(fixedDelay = 3600000) // Executes every hour
     public void checkAndNotifyLowBalance() {
@@ -115,36 +132,88 @@ public class CarteEtudiantService {
                 .filter(carte -> carte.getSolde() < 10)
                 .collect(Collectors.toList());
 
-        if (lowBalanceCards.isEmpty()) {
-            System.out.println("No cards with low balance found.");
-            return;
-        }
-
-        System.out.println("Found " + lowBalanceCards.size() + " cards with low balance.");
-        for (CarteEtudiant carte : lowBalanceCards) {
+        lowBalanceCards.forEach(carte -> {
             Utilisateur student = carte.getEtudiant();
-            sendSmsNotification(student.getNumeroTelephone(),student.getEmail(), smsService);
-        }
+            notifyLowBalance(student);
+        });
     }
 
-    private void sendSmsNotification(String phoneNumber, String email, SMSService smsService) {
-        String body = "This is a test SMS message using the Sinch Java SDK.";
-        String fromNumber = "+447418629291";
-        BatchesService batchesService = smsService.batches();
-
-
+    private void notifyLowBalance(Utilisateur student) {
+        String body = "Votre solde de carte étudiant est faible. Veuillez recharger votre carte.";
         String emailSubject = "Alerte Solde de Carte Étudiant";
-        String emailBody = String.format(
-                "Bonjour,\n\nVotre solde de carte étudiant est faible."
-        );
 
         try {
-            sendEmail(email, emailSubject, emailBody);
-            System.out.println("Email sent successfully to: " + email);
+            sendEmail(student.getEmail(), emailSubject, body);
+            System.out.println("Email envoyé avec succès à : " + student.getEmail());
         } catch (Exception e) {
-            System.err.println("Failed to send email to: " + email);
+            System.err.println("Échec de l'envoi de l'email à : " + student.getEmail());
+            e.printStackTrace();
+        }
+
+        try {
+
+            System.out.println("SMS envoyé avec succès à : " + student.getNumeroTelephone());
+        } catch (Exception e) {
+            System.err.println("Échec de l'envoi du SMS à : " + student.getNumeroTelephone());
             e.printStackTrace();
         }
     }
 
+    public void payerRepas(Long carteId, List<Long> repasIds, TypePaiement typePaiement) {
+        CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(carteId))
+                .orElseThrow(() -> new IllegalArgumentException("Carte étudiant introuvable."));
+
+        LocalDate today = LocalDate.now();
+        for (Long repasId : repasIds) {
+            if (!menuService.isRepasAvailableInMenuForDate(repasId, today)) {
+                throw new IllegalArgumentException("Le repas ID " + repasId + " n'est pas disponible dans le menu de cette semaine.");
+            }
+        }
+
+        double prixTotal = repasService.calculerPrixTotalRepas(repasIds);
+        if (carteEtudiant.getSolde() < prixTotal) {
+            throw new IllegalArgumentException("Solde insuffisant.");
+        }
+
+        carteEtudiant.setSolde(carteEtudiant.getSolde() - prixTotal);
+        carteEtudiantRepository.save(carteEtudiant);
+
+        paiementService.enregistrerPaiement(carteEtudiant, prixTotal, typePaiement);
+
+        HistoriqueRecharge historiqueRecharge = new HistoriqueRecharge();
+        historiqueRecharge.setCarteEtudiant(carteEtudiant);
+        historiqueRecharge.setMontant(-prixTotal);
+        historiqueRechargeRepository.save(historiqueRecharge);
+    }
+
+    public String genererRecuPaiement(Long utilisateurId, LocalDate datePaiement) {
+        LocalDateTime startOfDay = datePaiement.atStartOfDay();
+        LocalDateTime endOfDay = datePaiement.atTime(23, 59, 59);
+
+        List<Paiement> paiements = paiementRepository.findByUtilisateurIdAndDatePaiementBetween(utilisateurId, startOfDay, endOfDay);
+
+        if (paiements.isEmpty()) {
+            throw new IllegalArgumentException("Aucun paiement trouvé pour cet utilisateur à cette date.");
+        }
+
+        StringBuilder recu = new StringBuilder();
+        recu.append("=== Reçu de Paiement ===\n");
+        recu.append("ID Utilisateur : ").append(utilisateurId).append("\n");
+        recu.append("Date : ").append(datePaiement).append("\n");
+        recu.append("========================\n");
+
+        double total = 0;
+        for (Paiement paiement : paiements) {
+            recu.append("ID Paiement : ").append(paiement.getId()).append("\n");
+            recu.append("Montant : ").append(paiement.getMontant()).append("\n");
+            recu.append("Type : ").append(paiement.getType()).append("\n");
+            recu.append("------------------------\n");
+            total += paiement.getMontant();
+        }
+
+        recu.append("Total Payé : ").append(total).append("\n");
+        recu.append("========================");
+
+        return recu.toString();
+    }
 }
