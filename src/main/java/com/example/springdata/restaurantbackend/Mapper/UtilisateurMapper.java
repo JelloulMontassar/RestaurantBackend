@@ -15,9 +15,11 @@ public class UtilisateurMapper {
                 utilisateur.getPrenomUtilisateur(),
                 utilisateur.getGenre(),
                 utilisateur.getEmail(),
+                utilisateur.getNumeroTelephone(),
                 utilisateur.getRole(),
                 utilisateur.getCreatedAt(),
                 utilisateur.getUpdatedAt()
+
         );
     }
 
@@ -33,6 +35,7 @@ public class UtilisateurMapper {
                 null,
                 utilisateurDTO.getEmail(),
                 utilisateurDTO.getRole(),
+                utilisateurDTO.getNumeroTelephone(),
                 utilisateurDTO.getCreatedAt(),
                 utilisateurDTO.getUpdatedAt()
         );

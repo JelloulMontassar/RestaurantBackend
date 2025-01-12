@@ -35,7 +35,7 @@ public class RepasController {
 
     // Ajouter un nouveau repas
     @PostMapping("/ajouter")
-    public ResponseEntity<RepasDTO> createRepas(@Validated @RequestBody RepasDTO repasDTO) {
+    public ResponseEntity<RepasDTO> createRepas( @RequestBody RepasDTO repasDTO) {
         RepasDTO savedRepas = repasService.saveRepas(repasDTO);
         return ResponseEntity.ok(savedRepas);
     }

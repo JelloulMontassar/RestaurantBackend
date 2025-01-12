@@ -29,7 +29,7 @@ public class Ingredient {
     private double seuil;
 
     @Column(nullable = false)
-    private double prix;
+    private double prix=0.0;
 
     @Transient // Ne sera pas persisté dans la base de données
     private double quantiteRestante;

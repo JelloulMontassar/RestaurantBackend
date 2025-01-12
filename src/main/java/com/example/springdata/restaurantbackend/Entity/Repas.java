@@ -67,6 +67,7 @@ public class Repas {
             this.prixTotal = ingredients.stream()
                     .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
                     .sum();
+            System.out.println("Prix total: " + prixTotal);
         }
     }
 

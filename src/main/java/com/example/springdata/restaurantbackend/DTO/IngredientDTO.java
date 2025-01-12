@@ -13,7 +13,8 @@ public class IngredientDTO {
     private String nom;
     private double quantite;
     private double seuil;
-    private double prix;
+
+    private double prix=0.0;
     private LocalDateTime updatedAt;
     private double quantiteRestante;
     }

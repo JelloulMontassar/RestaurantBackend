@@ -32,9 +32,10 @@ public class CarteEtudiant {
     @Column(name = "updatedAt", nullable = false)
     private LocalDateTime updatedAt;
 
-    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY, optional = false)
+    @OneToOne(cascade = CascadeType.DETACH, fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "id_etudiant", nullable = false)
     private Utilisateur etudiant;
+
 
     @Version
     private int version;

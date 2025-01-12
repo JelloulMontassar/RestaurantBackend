@@ -34,7 +34,7 @@ public class RepasService {
         return RepasMapper.toDTO(repasRepository.findById(id).orElse(null));
     }
 
-   @Transactional
+
     public RepasDTO saveRepas(RepasDTO repasDTO) {
         // Conteneur mutable pour le prix total
         final double[] prixTotal = {0.0};
@@ -48,7 +48,7 @@ public class RepasService {
             // Récupérer l'ingrédient existant dans la base de données
             Ingredient existingIngredient = ingredientRepository.findById(ingredientDTO.getId())
                     .orElseThrow(() -> new RuntimeException("Ingrédient non trouvé : " + ingredientDTO.getId()));
-
+            System.out.println(existingIngredient.getNom()+" "+existingIngredient.getPrix());
             // Vérifier la quantité disponible
             double quantiteRestante = existingIngredient.getQuantite() - ingredientDTO.getQuantite();
             if (quantiteRestante < 0) {
@@ -58,14 +58,20 @@ public class RepasService {
             // Mettre à jour la quantité restante de l'ingrédient
             existingIngredient.setQuantite(quantiteRestante);
             ingredientRepository.save(existingIngredient); // Sauvegarder la mise à jour dans la base de données
+            System.out.println("Saved ! 1");
+            if (existingIngredient.getPrix() == 0.0) {
+                throw new RuntimeException("Prix de l'ingrédient non défini pour : " + existingIngredient.getNom());
+            }
 
-            // Créer un nouvel objet Ingredient à associer au repas
+            // Créer un nouvel objet Ingredient pour le repas (sans le sauvegarder directement)
             Ingredient repasIngredient = new Ingredient();
             repasIngredient.setId(existingIngredient.getId());
             repasIngredient.setNom(existingIngredient.getNom());
-            repasIngredient.setPrix(existingIngredient.getPrix());
+            repasIngredient.setSeuil(existingIngredient.getSeuil());
+            repasIngredient.setPrix(existingIngredient.getPrix()); // Assurez-vous que le prix est défini
             repasIngredient.setQuantite(ingredientDTO.getQuantite()); // Quantité utilisée
             repasIngredient.setQuantiteRestante(quantiteRestante);   // Nouvelle quantité restante
+
 
             // Ajouter au prix total
             prixTotal[0] += ingredientDTO.getQuantite() * existingIngredient.getPrix();
@@ -75,11 +81,14 @@ public class RepasService {
 
         // Associer les ingrédients au repas
         repas.setIngredients(updatedIngredients);
+        System.out.println(updatedIngredients);
         repas.setPrixTotal(prixTotal[0]); // Mettre à jour le prix total
-
+        System.out.println(repas.toString());
         // Sauvegarder le repas
+        System.out.println(repas.getIngredients().get(0).getPrix());
+        System.out.println(repas.getPrixTotal());
         Repas savedRepas = repasRepository.save(repas);
-
+        System.out.println("Saved ! 2");
         // Mapper vers le DTO
         RepasDTO savedRepasDTO = RepasMapper.toDTO(savedRepas);
 
@@ -91,6 +100,7 @@ public class RepasService {
                     .orElse(null);
 
             if (matchingIngredient != null) {
+                System.out.println(matchingIngredient.getPrix());
                 ingredientDTO.setQuantiteRestante(matchingIngredient.getQuantiteRestante());
             }
         });

@@ -11,6 +11,7 @@ import java.time.LocalDateTime;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class UtilisateurDTO {
 
     private Long id;
@@ -22,7 +23,7 @@ public class UtilisateurDTO {
     private Genre genre;
 
     private String email;
-
+    private String numeroTelephone;
     private RoleUtilisateur role;
 
     private LocalDateTime createdAt;
