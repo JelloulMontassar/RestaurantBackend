@@ -7,8 +7,10 @@ import com.example.springdata.restaurantbackend.Entity.Utilisateur;
 import com.example.springdata.restaurantbackend.Requests.RecuPaiementRequest;
 import com.example.springdata.restaurantbackend.Service.CarteEtudiantService;
 import com.example.springdata.restaurantbackend.Service.UtilisateurService;
+import jdk.jshell.execution.Util;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
@@ -27,7 +29,13 @@ public class CarteEtudiantController {
     public ResponseEntity<List<CarteEtudiantDTO>> getAllCartesEtudiants() {
         return ResponseEntity.ok(carteEtudiantService.getAllCartesEtudiants());
     }
-
+    @GetMapping("/getCarteEtudiantByUtilisateur")
+    public ResponseEntity<CarteEtudiantDTO> getCarteEtudiantByUtilisateurId(Authentication authentication) {
+        UtilisateurDTO utilisateurDTO = utilisateurService.getUserByEmail(authentication.getName());
+        Long utilisateurId = utilisateurDTO.getId();
+        Utilisateur user = utilisateurService.getUserById(utilisateurId);
+        return ResponseEntity.ok(carteEtudiantService.getCarteEtudiantByUser(user));
+    }
     @PostMapping("/ajouter")
     public ResponseEntity<CarteEtudiantDTO> saveCarteEtudiant(@RequestBody CarteEtudiantDTO carteEtudiantDTO) {
         return ResponseEntity.ok(carteEtudiantService.saveCarteEtudiant(carteEtudiantDTO));

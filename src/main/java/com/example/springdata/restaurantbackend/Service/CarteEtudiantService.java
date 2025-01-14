@@ -172,6 +172,8 @@ public class CarteEtudiantService {
 
         double prixTotal = repasService.calculerPrixTotalRepas(repasIds);
         if (carteEtudiant.getSolde() < prixTotal) {
+            System.out.println(carteEtudiant.getSolde());
+            System.out.println(prixTotal);
             throw new IllegalArgumentException("Solde insuffisant.");
         }
 
@@ -215,5 +217,11 @@ public class CarteEtudiantService {
         recu.append("========================");
 
         return recu.toString();
+    }
+    public CarteEtudiantDTO getCarteEtudiantByUser(Utilisateur user) {
+        CarteEtudiant carteEtudiant = carteEtudiantRepository.findByEtudiant(user)
+                .orElseThrow(() -> new IllegalArgumentException("Carte étudiant introuvable pour cet utilisateur."));
+
+        return CarteEtudiantMapper.toDTO(carteEtudiant);
     }
 }

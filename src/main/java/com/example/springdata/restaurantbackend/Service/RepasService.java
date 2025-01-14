@@ -143,6 +143,7 @@ public class RepasService {
         return repas.getIngredients().stream()
                 .mapToDouble(ingredient -> ingredient.getQuantite() * ingredient.getPrix())
                 .sum();*/
+        System.out.println(repasIds);
         List<Repas> repasList = repasRepository.findAllById(repasIds);
         if (repasList.size() != repasIds.size()) {
             throw new RuntimeException("Certains repas sont introuvables.");

@@ -31,6 +31,7 @@ public class PaiementService {
         paiement.setMontant(montant);
         paiement.setType(typePaiement);
         paiement.setDatePaiement(LocalDateTime.now());
+        System.out.println("Paiement à enregistrer : " + paiement);
         Paiement savedPaiement = paiementRepository.save(paiement);
         System.out.println("Paiement enregistré : " + savedPaiement);
         return savedPaiement;

@@ -11,6 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -19,13 +21,15 @@ import java.util.List;
 @Slf4j
 @Controller
 @RequestMapping("/api/utilisateurs")
+@CrossOrigin(origins = "http://localhost:3000")
 public class UtilisateurController {
 
     @Autowired
     private UtilisateurService utilisateurService;
-    @GetMapping
-    public ResponseEntity<List<UtilisateurDTO>> getAllUsers() {
-        return ResponseEntity.ok(utilisateurService.getAllUsers());
+    private final BCryptPasswordEncoder bCryptPasswordEncoder;
+
+    public UtilisateurController(BCryptPasswordEncoder bCryptPasswordEncoder) {
+        this.bCryptPasswordEncoder = bCryptPasswordEncoder;
     }
 
     @PostMapping("/authenticate")
@@ -62,6 +66,7 @@ public class UtilisateurController {
     }
     @PostMapping("/ajouter")
     public ResponseEntity<UtilisateurDTO> saveUtilisateur(@RequestBody Utilisateur utilisateur) {
+        utilisateur.setMotDePasse(bCryptPasswordEncoder.encode(utilisateur.getMotDePasse()));
         return ResponseEntity.ok(utilisateurService.saveUtilisateur(utilisateur));
     }
     @GetMapping("/{id}")
@@ -73,9 +78,18 @@ public class UtilisateurController {
         utilisateurService.deleteUtilisateur(id);
         return ResponseEntity.ok().build();
     }
-    @PostMapping("/modifier/{id}")
+    @PutMapping("/modifier/{id}")
     public ResponseEntity<UtilisateurDTO> updateUtilisateur(@PathVariable Long id, @RequestBody Utilisateur utilisateur) {
         return ResponseEntity.ok(utilisateurService.updateUtilisateur(id, utilisateur));
+    }
+    @GetMapping
+    public ResponseEntity<List<UtilisateurDTO>> getAllUtilisateurs() {
+        return ResponseEntity.ok(utilisateurService.getAllUsers());
+    }
+    @GetMapping("/profil")
+    public ResponseEntity<UtilisateurDTO> getProfil(Authentication authentication) {
+        String username = authentication.getName();
+        return ResponseEntity.ok(utilisateurService.getUserByEmail(username));
     }
 
 

@@ -2,13 +2,17 @@ package com.example.springdata.restaurantbackend.Controller;
 
 import com.example.springdata.restaurantbackend.DTO.CarteEtudiantDTO;
 import com.example.springdata.restaurantbackend.DTO.RepasDTO;
+import com.example.springdata.restaurantbackend.DTO.UtilisateurDTO;
+import com.example.springdata.restaurantbackend.Entity.Utilisateur;
 import com.example.springdata.restaurantbackend.Enums.TypeRepas;
 import com.example.springdata.restaurantbackend.Requests.PayerRepasRequest;
 import com.example.springdata.restaurantbackend.Service.CarteEtudiantService;
 import com.example.springdata.restaurantbackend.Service.MenuService;
 import com.example.springdata.restaurantbackend.Service.RepasService;
+import com.example.springdata.restaurantbackend.Service.UtilisateurService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -30,6 +34,8 @@ public class RepasController {
 
     @Autowired
     private CarteEtudiantService carteEtudiantService;
+    @Autowired
+    private UtilisateurService utilisateurService;
 
     // Récupérer tous les repas
     @GetMapping
@@ -84,8 +90,13 @@ public class RepasController {
 
     // Effectuer le paiement des repas
     @PostMapping("/payer")
-    public ResponseEntity<?> payerRepas(@RequestBody PayerRepasRequest request) {
+    public ResponseEntity<?> payerRepas(@RequestBody PayerRepasRequest request, Authentication authentication) {
         try {
+            String username = authentication.getName();
+            UtilisateurDTO utilisateur = utilisateurService.getUserByEmail(username);
+            Utilisateur user = utilisateurService.getUserById(utilisateur.getId());
+            CarteEtudiantDTO carteEtudiantDTO = carteEtudiantService.getCarteEtudiantByUser(user);
+            request.setCarteId(carteEtudiantDTO.getId());
             carteEtudiantService.payerRepas(request.getCarteId(), request.getRepasIds(), request.getTypePaiement());
             CarteEtudiantDTO carte = carteEtudiantService.getCarteEtudiantById(request.getCarteId());
             List<RepasDTO> repasPayes = request.getRepasIds().stream()

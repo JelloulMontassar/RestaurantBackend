@@ -1,5 +1,6 @@
 package com.example.springdata.restaurantbackend.Entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,6 +13,7 @@ import java.time.LocalDateTime;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class HistoriqueRecharge {
 
     @Id
@@ -20,7 +22,9 @@ public class HistoriqueRecharge {
 
     @ManyToOne(cascade = CascadeType.DETACH, fetch = FetchType.LAZY, optional = false)
     @JoinColumn(name = "carte_etudiant_id", nullable = false)
+    @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
     private CarteEtudiant carteEtudiant;
+
 
     @Column(nullable = false)
     private double montant;

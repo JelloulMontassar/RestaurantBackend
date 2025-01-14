@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -20,10 +21,10 @@ public class MenuDTO {
     private MenuType type;
 
     @FutureOrPresent
-    private LocalDateTime startDate;
+    private LocalDate startDate;
 
     @Future
-    private LocalDateTime endDate;
+    private LocalDate endDate;
 
     private List<RepasDTO> repas;
 }

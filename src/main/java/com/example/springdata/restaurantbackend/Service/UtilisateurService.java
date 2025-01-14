@@ -33,7 +33,11 @@ public class UtilisateurService {
     }
 
     public List<UtilisateurDTO> getAllUsers() {
-        return utilisateurRepository.findAll().stream().map(UtilisateurMapper::toDTO).collect(Collectors.toList());
+
+    return utilisateurRepository.findAll()
+                .stream()
+                .map(UtilisateurMapper::toDTO)
+                .collect(Collectors.toList());
     }
     public UtilisateurDTO saveUtilisateur(Utilisateur utilisateur) {
         return UtilisateurMapper.toDTO(utilisateurRepository.save(utilisateur));
@@ -93,6 +97,9 @@ public class UtilisateurService {
                 .messageResponse("You have been successfully authenticated!")
                 .build();
     }
-
+    public Utilisateur getUserById(Long id) {
+        return utilisateurRepository.findById(id)
+                .orElseThrow(() -> new UserNotFoundException("User not found with id: " + id));
+    }
 
 }

@@ -38,9 +38,18 @@ public class MenuController {
             return ResponseEntity.notFound().build();
         }
     }
-
+    @GetMapping("/getMenuByDate")
+    public ResponseEntity<MenuDTO> getMenuByDate(@RequestParam LocalDate date) {
+        MenuDTO menu = menuService.getMenuByDate(date);
+        if (menu != null) {
+            return ResponseEntity.ok(menu);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
     @PostMapping("/ajouter")
     public ResponseEntity<MenuDTO> createMenu(@RequestBody MenuDTO menuDTO) {
+
         MenuDTO savedMenu = menuService.saveMenu(menuDTO);
         return ResponseEntity.ok(savedMenu);
     }
@@ -62,7 +71,7 @@ public class MenuController {
     }
 
     @PostMapping("/planifier-hebdomadaire")
-    public ResponseEntity<List<Menu>> planifierMenusHebdomadaires(@RequestBody List<MenuPlanificationRequest> menuRequests) {
+    public ResponseEntity<List<Menu>> planifierMenusHebdomadaires(@RequestBody MenuPlanificationRequest menuRequests) {
         try {
             System.out.println("Reçu: " + menuRequests);
             List<Menu> menusHebdomadaires = menuService.planifierMenusHebdomadairesAvecJson(menuRequests);

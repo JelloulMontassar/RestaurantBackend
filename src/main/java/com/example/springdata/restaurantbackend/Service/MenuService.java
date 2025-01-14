@@ -27,7 +27,14 @@ public class MenuService {
 
     @Autowired
     private RepasRepository repasRepository;
+    public MenuDTO getMenuByDate(LocalDate date) {
+        Menu menu = menuRepository.findAll().stream()
+                .filter(m -> !date.isBefore(ChronoLocalDate.from(m.getStartDate())) && !date.isAfter(ChronoLocalDate.from(m.getEndDate())))
+                .findFirst()
+                .orElse(null);
 
+        return MenuMapper.toDTO(menu);
+    }
     public List<MenuDTO> getAllMenus() {
         List<Menu> menus = menuRepository.findAll();
         return menus.stream()
@@ -78,26 +85,25 @@ public class MenuService {
         return null;
     }
 
-    public List<Menu> planifierMenusHebdomadairesAvecJson(List<MenuPlanificationRequest> menuRequests) {
+    public List<Menu> planifierMenusHebdomadairesAvecJson(MenuPlanificationRequest menuRequests) {
         List<Menu> menus = new ArrayList<>();
 
-        for (MenuPlanificationRequest request : menuRequests) {
             // Vérification du type de menu
-            if (request.getType() != MenuType.HEBDOMADAIRE) {
+            if (menuRequests.getType() != MenuType.HEBDOMADAIRE) {
                 throw new IllegalArgumentException("Cette méthode est uniquement destinée à planifier des menus hebdomadaires.");
             }
 
-            LocalDate currentDate = request.getStartDate();
+            LocalDate currentDate = menuRequests.getStartDate();
             List<Repas> repas = new ArrayList<>();
 
             for (int i = 0; i < 7; i++) {
-                if (i >= request.getRepasIds().size()) {
+                if (i >= menuRequests.getRepasIds().size()) {
                     throw new IllegalArgumentException("Données manquantes pour le jour " + (i + 1));
                 }
 
-                List<Long> repasIdsForDay = request.getRepasIds().get(i);
+                List<Long> repasIdsForDay = menuRequests.getRepasIds().get(i);
                 List<Repas> repasForDay = repasRepository.findAllById(repasIdsForDay);
-
+                
                 if (repasForDay.size() != repasIdsForDay.size()) {
                     throw new IllegalArgumentException("Certains repas fournis n'existent pas dans la base de données.");
                 }
@@ -105,17 +111,20 @@ public class MenuService {
                 repas.addAll(repasForDay);
             }
 
+            // Creating the menu for the week
             Menu menu = new Menu();
             menu.setType(MenuType.HEBDOMADAIRE); // Assurez-vous que le type est défini correctement
-            menu.setStartDate(request.getStartDate().atStartOfDay());
-            menu.setEndDate(request.getEndDate().atTime(23, 59, 59));
+            menu.setStartDate(menuRequests.getStartDate());
+            menu.setEndDate(menuRequests.getEndDate());
             menu.setRepas(repas);
 
             menus.add(menu);
-        }
 
+
+        // Save all the menus and return
         return menuRepository.saveAll(menus);
     }
+
 
     public List<Long> getRepasIdsForDate(LocalDate date) {
         return menuRepository.findAll().stream()
@@ -134,8 +143,8 @@ public class MenuService {
     public MenuResponse saveDailyMenu(LocalDate date, List<Long> repasIds) {
         // Vérifier si un menu quotidien existe déjà pour cette date
         Menu existingMenu = menuRepository.findAll().stream()
-                .filter(menu -> date.isEqual(menu.getStartDate().toLocalDate()) &&
-                        date.isEqual(menu.getEndDate().toLocalDate()) &&
+                .filter(menu -> date.isEqual(menu.getStartDate()) &&
+                        date.isEqual(menu.getEndDate()) &&
                         menu.getType() == MenuType.QUOTIDIEN) // Assurez-vous qu'il s'agit d'un menu quotidien
                 .findFirst()
                 .orElse(null);
@@ -153,8 +162,8 @@ public class MenuService {
 
         Menu menu = new Menu();
         menu.setType(MenuType.QUOTIDIEN); // Assurez-vous que le type est défini correctement
-        menu.setStartDate(date.atStartOfDay());
-        menu.setEndDate(date.atTime(23, 59, 59));
+        menu.setStartDate(LocalDate.from(date.atStartOfDay()));
+        menu.setEndDate(LocalDate.from(date.atTime(23, 59, 59)));
         menu.setRepas(repas);
 
         return new MenuResponse("Menu quotidien créé avec succès.", MenuMapper.toDTO(menuRepository.save(menu)));
@@ -165,8 +174,8 @@ public class MenuService {
     //récuppérer menu quotidien
     public MenuDTO getDailyMenu(LocalDate date) {
         Menu menu = menuRepository.findAll().stream()
-                .filter(m -> date.isEqual(m.getStartDate().toLocalDate()) &&
-                        date.isEqual(m.getEndDate().toLocalDate()))
+                .filter(m -> date.isEqual(m.getStartDate()) &&
+                        date.isEqual(m.getEndDate()))
                 .findFirst()
                 .orElse(null);
 
@@ -178,8 +187,8 @@ public class MenuService {
     public MenuResponse updateDailyMenu(LocalDate date, List<Long> repasIds) {
         // Recherche du menu quotidien existant pour la date donnée
         Menu existingMenu = menuRepository.findAll().stream()
-                .filter(menu -> date.isEqual(menu.getStartDate().toLocalDate()) &&
-                        date.isEqual(menu.getEndDate().toLocalDate()) &&
+                .filter(menu -> date.isEqual(menu.getStartDate()) &&
+                        date.isEqual(menu.getEndDate()) &&
                         menu.getType() == MenuType.QUOTIDIEN)  // Assurez-vous qu'il s'agit bien d'un menu quotidien
                 .findFirst()
                 .orElse(null);
