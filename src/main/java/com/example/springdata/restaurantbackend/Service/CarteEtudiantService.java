@@ -159,6 +159,7 @@ public class CarteEtudiantService {
         }
     }
 
+    @Transactional
     public void payerRepas(Long carteId, List<Long> repasIds, TypePaiement typePaiement) {
         CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(carteId))
                 .orElseThrow(() -> new IllegalArgumentException("Carte étudiant introuvable."));

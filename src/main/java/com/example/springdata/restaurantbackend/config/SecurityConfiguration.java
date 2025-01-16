@@ -57,7 +57,7 @@ public class SecurityConfiguration {
                                         "/swagger-ui/index.html",
                                         "/swagger-ui/**",
                                         "/api/utilisateurs/authenticate",
-                                        "/api/cartes-etudiants/**"
+                                        "/api/**"
                                 ).permitAll()
                                 .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
