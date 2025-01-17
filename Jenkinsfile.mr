@@ -14,35 +14,37 @@ pipeline {
             }
         }
 
-        // Verify that the build.sh file exists
+        // Verify files and directory structure
         stage('Verify Files') {
             steps {
                 script {
-                    // Debugging step to verify file location
+                    // Debugging step to verify file location and structure
                     echo 'Listing files in the current directory:'
-                    bat 'dir'  // List files to verify build.sh exists
+                    bat 'dir'  // List files to verify directory structure (use 'dir' for Windows)
                 }
             }
         }
 
-        // Build the application
+        // Build the application (Maven example for a Java project)
         stage('Build') {
             steps {
                 script {
                     echo 'Building the application...'
-                    bat 'echo Running build.sh script...'  // Log a message before running the script
-                    bat 'wsl.exe -u montassar ./build.sh'  // Replace <username> with your WSL username
+                    // Example with Maven: Assuming you have a pom.xml for your Java project
+                    sh 'mvn clean install'  // Replace with the appropriate build command
+                    // Or for Gradle: sh './gradlew build'
+                    // Or for Node.js: sh 'npm install && npm run build'
                 }
             }
         }
 
-        // Verify that the build artifacts were created
+        // Verify build artifacts were created
         stage('Verify Build Artifacts') {
             steps {
                 script {
                     echo 'Verifying build artifacts...'
-                    bat 'echo Verifying build artifacts in the build directory...'
-                    bat 'dir build'  // Modify to your build directory if necessary
+                    // Check if build artifacts are present (adjust directory based on your setup)
+                    bat 'dir build'  // Modify this command as necessary to verify build artifacts
                 }
             }
         }
@@ -52,8 +54,10 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    bat 'echo Running unit tests with run_tests.bat script...'
-                    bat 'wsl.exe -u montassar ./run_tests.sh'  // Run unit tests as a specific user
+                    // Example for running unit tests using Maven (or adjust based on your build tool)
+                    sh 'mvn test'  // For Maven
+                    // Or for Gradle: sh './gradlew test'
+                    // Or for Node.js: sh 'npm run test'
                 }
             }
         }
@@ -63,8 +67,10 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    bat 'echo Running integration tests with run_integration_tests.bat script...'
-                    bat 'wsl.exe -u montassar ./run_integration_tests.sh'  // Run integration tests as a specific user
+                    // Example for integration tests using Maven (or adjust based on your tool)
+                    sh 'mvn verify'  // For Maven integration tests
+                    // Or for Gradle: sh './gradlew integrationTest'
+                    // Or for Node.js: sh 'npm run integrationTest'
                 }
             }
         }
@@ -72,7 +78,7 @@ pipeline {
 
     post {
         always {
-            echo 'Merge request pipeline completed.'
+            echo 'Pipeline completed.'
         }
     }
 }
