@@ -30,7 +30,20 @@ pipeline {
             steps {
                 script {
                     echo 'Building the application...'
+                    bat 'echo Running build.bat script...'  // Log a message before running the script
                     bat 'build.bat'  // Call the build.bat script
+                }
+            }
+        }
+
+        // Verify that the build artifacts were created
+        stage('Verify Build Artifacts') {
+            steps {
+                script {
+                    // Assuming your build script generates files like jar or war, adjust as necessary
+                    echo 'Verifying build artifacts...'
+                    bat 'echo Verifying build artifacts in the build directory...'  // Log message before verification
+                    bat 'dir build'  // Modify to your build directory if necessary
                 }
             }
         }
@@ -40,6 +53,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
+                    bat 'echo Running unit tests with run_tests.bat script...'  // Log a message before running unit tests
                     bat 'run_tests.bat'  // Run the unit tests batch script
                 }
             }
@@ -50,6 +64,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
+                    bat 'echo Running integration tests with run_integration_tests.bat script...'  // Log a message before running integration tests
                     bat 'run_integration_tests.bat'  // Run the integration tests batch script
                 }
             }
