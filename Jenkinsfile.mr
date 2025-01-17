@@ -35,16 +35,7 @@ pipeline {
             }
         }
 
-        // Verify that the build artifacts were created
-        stage('Verify Build Artifacts') {
-            steps {
-                script {
-                    echo 'Verifying build artifacts...'
-                    bat 'echo Verifying build artifacts in the build directory...'
-                    bat 'dir build'  // Modify this path to the actual directory if necessary
-                }
-            }
-        }
+
 
         // Run unit tests
         stage('Unit Test') {
