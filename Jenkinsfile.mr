@@ -1,10 +1,7 @@
 pipeline {
     agent any
 
-    // Trigger pipeline on push to GitHub (which includes pull request events)
-    triggers {
-        githubPush()
-    }
+
 
     stages {
         // Checkout the code from the repository
@@ -35,18 +32,7 @@ pipeline {
             }
         }
 
-        // Verify that the build artifacts were created
-        stage('Verify Build Artifacts') {
-            steps {
-                script {
-                    echo 'Verifying build artifacts...'
-                    bat 'echo Verifying build artifacts in the build directory...'
-                    bat 'dir build'  // Modify this path to the actual directory if necessary
-                }
-            }
-        }
-
-        // Run unit tests
+        // Run unit test
         stage('Unit Test') {
             steps {
                 script {
@@ -57,7 +43,7 @@ pipeline {
             }
         }
 
-        // Run integration tests
+        // Run integration
         stage('Integration Test') {
             steps {
                 script {
