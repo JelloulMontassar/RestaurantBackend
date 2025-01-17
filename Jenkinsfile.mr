@@ -14,13 +14,13 @@ pipeline {
             }
         }
 
-        // Verify that the build.sh file exists
+        // Verify that the build.bat file exists
         stage('Verify Files') {
             steps {
                 script {
                     // Debugging step to verify file location
                     echo 'Listing files in the current directory:'
-                    'ls -al'  // List files to verify build.sh exists
+                    bat 'dir'  // List files to verify build.bat exists (use 'dir' for Windows)
                 }
             }
         }
@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building the application...'
-                    './build.sh'  // Call the build script
+                    bat 'build.bat'  // Call the build.bat script
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    './run_tests.sh'  // Run the unit tests script
+                    bat 'run_tests.bat'  // Run the unit tests batch script
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    './run_integration_tests.sh'  // Run the integration tests script
+                    bat 'run_integration_tests.bat'  // Run the integration tests batch script
                 }
             }
         }
