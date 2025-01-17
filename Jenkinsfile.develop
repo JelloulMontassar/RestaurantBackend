@@ -1,46 +1,77 @@
 pipeline {
     agent any
 
+    // Trigger pipeline on push to GitHub (which includes pull request events)
+    triggers {
+        githubPush()
+    }
+
     stages {
+        // Checkout the code from the repository
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // Verify that necessary files exist
+        stage('Verify Files') {
+            steps {
+                script {
+                    echo 'Listing files in the current directory:'
+                    bat 'dir'  // List files to verify necessary files exist
+                }
+            }
+        }
+
+        // Build the application
         stage('Build') {
             steps {
                 script {
-                    // Compile and build the app
                     echo 'Building the application...'
-                    sh './build.sh'  //
+                    bat 'echo Running build process...'
+                    bat './mvnw clean install -Dspring.profiles.active=test'  // Set active profile to 'test' using Maven
                 }
             }
         }
 
+        // Verify that the build artifacts were created
+        stage('Verify Build Artifacts') {
+            steps {
+                script {
+                    echo 'Verifying build artifacts...'
+                    bat 'echo Verifying build artifacts in the build directory...'
+                    bat 'dir build'  // Modify this path to the actual directory if necessary
+                }
+            }
+        }
+
+        // Run unit tests
         stage('Unit Test') {
             steps {
                 script {
-                    // Run unit tests
                     echo 'Running unit tests...'
-                    sh './run_tests.sh'  // Your unit tests script
+                    bat 'echo Running unit tests...'
+                    bat './mvnw test -Dspring.profiles.active=test'  // Set active profile to 'test' for unit tests
                 }
             }
         }
 
+        // Run integration tests
         stage('Integration Test') {
             steps {
                 script {
-                    // Run integration tests
                     echo 'Running integration tests...'
-                    sh './run_integration_tests.sh'  // Your integration tests script
+                    bat 'echo Running integration tests...'
+                    bat './mvnw integration-test -Dspring.profiles.active=test'  // Set active profile to 'test' for integration tests
                 }
             }
         }
-    }
-
-    triggers {
-        // Trigger this pipeline only when changes are merged into the `develop` branch
-        gitlab(triggerOnPush: true, branches: 'develop')
     }
 
     post {
         always {
-            echo 'Develop pipeline completed.'
+            echo 'Pipeline completed.'
         }
     }
 }
