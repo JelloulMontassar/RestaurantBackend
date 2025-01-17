@@ -1,51 +1,65 @@
 pipeline {
     agent any
 
-    environment {
-        IMAGE_VERSION = "${env.BRANCH_NAME}"  // Set image version to the branch name
-        IMAGE_NAME = 'myapp'
+    triggers {
+        // Trigger only when a branch with name release-* is created
+        pollSCM('H/5 * * * *') // Poll every 5 minutes
     }
 
     stages {
-        stage('Build Docker Image') {
+        stage('Trigger Verification') {
+            when {
+                branch pattern: 'release-*', comparator: 'REGEXP'
+            }
             steps {
                 script {
-                    // Build the Docker image from the code
-                    echo 'Building Docker image...'
-                    sh 'docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} .'
+                    echo "Branch matches 'release-*'. Proceeding with the pipeline."
                 }
             }
         }
 
-        stage('Push Docker Image') {
+        stage('Build and Push Docker Image') {
+            when {
+                branch pattern: 'release-*', comparator: 'REGEXP'
+            }
             steps {
                 script {
-                    // Push the Docker image to a registry (adjust with your own registry details)
-                    echo 'Pushing Docker image to the registry...'
-                    sh 'docker push ${IMAGE_NAME}:${IMAGE_VERSION}'  // Push image
+                    def branchName = env.BRANCH_NAME
+                    def dockerImage = "your-docker-registry/your-app:${branchName}"
+
+                    echo "Building Docker image: ${dockerImage}"
+                    sh "docker build -t ${dockerImage} ."
+
+                    echo "Pushing Docker image: ${dockerImage}"
+                    sh "docker push ${dockerImage}"
                 }
             }
         }
 
-        stage('Deploy') {
+        stage('Deploy Application') {
+            when {
+                branch pattern: 'release-*', comparator: 'REGEXP'
+            }
             steps {
                 script {
-                    // Deploy the application (example for deploying Docker containers)
-                    echo 'Deploying application...'
-                    sh './deploy.sh'  // Deployment script (can be adjusted)
+                    def branchName = env.BRANCH_NAME
+                    def dockerImage = "your-docker-registry/your-app:${branchName}"
+
+                    echo "Deploying application with Docker image: ${dockerImage}"
+
+                    // Example deployment using Docker Compose
+                    sh """
+                        docker-compose down
+                        docker-compose up -d --no-build
+                    """
                 }
             }
         }
-    }
-
-    triggers {
-        // Trigger this pipeline only when a branch with name release-* is created
-        gitlab(triggerOnPush: true, branches: 'release-*')
     }
 
     post {
         always {
-            echo 'Release pipeline completed.'
+            echo "Pipeline completed."
         }
     }
 }
