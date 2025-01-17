@@ -1,42 +1,59 @@
 pipeline {
     agent any
 
+    // Trigger pipeline only when a merge request is created
+    triggers {
+        githubPullRequest()
+    }
+
     stages {
+        // Checkout the code from the repository
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        // Verify that the build.sh file exists
+        stage('Verify Files') {
+            steps {
+                script {
+                    // Debugging step to verify file location
+                    echo 'Listing files in the current directory:'
+                    sh 'ls -al'  // List files to verify build.sh exists
+                }
+            }
+        }
+
+        // Build the application
         stage('Build') {
             steps {
                 script {
-                    // Compile and build the app
                     echo 'Building the application...'
-                    sh './build.sh'  // Your build script
+                    sh './build.sh'  // Call the build script
                 }
             }
         }
 
+        // Run unit tests
         stage('Unit Test') {
             steps {
                 script {
-                    // Run unit tests
                     echo 'Running unit tests...'
-                    sh './run_tests.sh'  // Your unit tests script
+                    sh './run_tests.sh'  // Run the unit tests script
                 }
             }
         }
 
+        // Run integration tests
         stage('Integration Test') {
             steps {
                 script {
-                    // Run integration tests
                     echo 'Running integration tests...'
-                    sh './run_integration_tests.sh'  // Your integration tests script
+                    sh './run_integration_tests.sh'  // Run the integration tests script
                 }
             }
         }
-    }
-
-    triggers {
-        // Trigger the pipeline only when a merge request is created
-        // Adjust this to your SCM setup
-        githubPush()
     }
 
     post {
