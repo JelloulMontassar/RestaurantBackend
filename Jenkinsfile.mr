@@ -48,7 +48,7 @@ pipeline {
             }
         }
 
-        // Run integration tests
+        // Run integration
         stage('Integration Test') {
             steps {
                 script {
