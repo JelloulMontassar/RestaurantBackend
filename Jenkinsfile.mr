@@ -1,9 +1,9 @@
 pipeline {
     agent any
 
-    // Trigger pipeline only when a merge request is created
+    // Trigger pipeline on push to GitHub (which includes pull request events)
     triggers {
-        githubPullRequest()
+        githubPush()
     }
 
     stages {
