@@ -31,7 +31,7 @@ pipeline {
                 script {
                     echo 'Building the application...'
                     // Example with Maven: Assuming you have a pom.xml for your Java project
-                    sh 'mvn clean install'  // Replace with the appropriate build command
+                    sh './mvnw clean install'  // Replace with the appropriate build command
                     // Or for Gradle: sh './gradlew build'
                     // Or for Node.js: sh 'npm install && npm run build'
                 }
