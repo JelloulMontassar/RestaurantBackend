@@ -1,12 +1,7 @@
 pipeline {
     agent any
 
-    // Trigger pipeline only when a pull request is created or updated in GitHub
-    triggers {
-        githubPullRequest {
-            triggerOnPR: true
-        }
-    }
+
 
     stages {
         // Checkout the code from the repository
