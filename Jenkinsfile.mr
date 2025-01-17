@@ -37,7 +37,7 @@ pipeline {
 
 
 
-        // Run unit tests
+        // Run unit test
         stage('Unit Test') {
             steps {
                 script {
