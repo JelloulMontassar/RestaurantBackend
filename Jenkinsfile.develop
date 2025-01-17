@@ -1,13 +1,17 @@
 pipeline {
     agent any
 
+
+
     stages {
+        // Checkout the code from the repository
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
+        // Verify that necessary files exist
         stage('Verify Files') {
             steps {
                 script {
@@ -17,37 +21,34 @@ pipeline {
             }
         }
 
+        // Build the application
         stage('Build') {
-            when {
-                changeRequest(target: 'main', source: 'develop')
-            }
             steps {
                 script {
                     echo 'Building the application...'
+                    bat 'echo Running build process...'
                     bat './mvnw clean install -Dspring.profiles.active=test'  // Set active profile to 'test' using Maven
                 }
             }
         }
 
+        // Run unit test
         stage('Unit Test') {
-            when {
-                changeRequest(target: 'main', source: 'develop')
-            }
             steps {
                 script {
                     echo 'Running unit tests...'
+                    bat 'echo Running unit tests...'
                     bat './mvnw test -Dspring.profiles.active=test'  // Set active profile to 'test' for unit tests
                 }
             }
         }
 
+        // Run integration
         stage('Integration Test') {
-            when {
-                changeRequest(target: 'main', source: 'develop')
-            }
             steps {
                 script {
                     echo 'Running integration tests...'
+                    bat 'echo Running integration tests...'
                     bat './mvnw integration-test -Dspring.profiles.active=test'  // Set active profile to 'test' for integration tests
                 }
             }
