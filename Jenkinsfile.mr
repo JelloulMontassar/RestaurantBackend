@@ -14,37 +14,34 @@ pipeline {
             }
         }
 
-        // Verify files and directory structure
+        // Verify that necessary files exist
         stage('Verify Files') {
             steps {
                 script {
-                    // Debugging step to verify file location and structure
                     echo 'Listing files in the current directory:'
-                    bat 'dir'  // List files to verify directory structure (use 'dir' for Windows)
+                    bat 'dir'  // List files to verify necessary files exist
                 }
             }
         }
 
-        // Build the application (Maven example for a Java project)
+        // Build the application
         stage('Build') {
             steps {
                 script {
                     echo 'Building the application...'
-                    // Example with Maven: Assuming you have a pom.xml for your Java project
-                    sh './mvnw clean install'  // Replace with the appropriate build command
-                    // Or for Gradle: sh './gradlew build'
-                    // Or for Node.js: sh 'npm install && npm run build'
+                    bat 'echo Running build process...'
+                    bat 'mvn clean install'  // Example for Maven build. Adjust if you're using another tool.
                 }
             }
         }
 
-        // Verify build artifacts were created
+        // Verify that the build artifacts were created
         stage('Verify Build Artifacts') {
             steps {
                 script {
                     echo 'Verifying build artifacts...'
-                    // Check if build artifacts are present (adjust directory based on your setup)
-                    bat 'dir build'  // Modify this command as necessary to verify build artifacts
+                    bat 'echo Verifying build artifacts in the build directory...'
+                    bat 'dir build'  // Modify this path to the actual directory if necessary
                 }
             }
         }
@@ -54,10 +51,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    // Example for running unit tests using Maven (or adjust based on your build tool)
-                    sh 'mvn test'  // For Maven
-                    // Or for Gradle: sh './gradlew test'
-                    // Or for Node.js: sh 'npm run test'
+                    bat 'echo Running unit tests...'
+                    bat 'mvn test'  // Run unit tests using Maven, adjust if needed
                 }
             }
         }
@@ -67,10 +62,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    // Example for integration tests using Maven (or adjust based on your tool)
-                    sh 'mvn verify'  // For Maven integration tests
-                    // Or for Gradle: sh './gradlew integrationTest'
-                    // Or for Node.js: sh 'npm run integrationTest'
+                    bat 'echo Running integration tests...'
+                    bat 'mvn integration-test'  // Example for Maven integration tests, adjust if needed
                 }
             }
         }
