@@ -20,7 +20,7 @@ pipeline {
                 script {
                     // Debugging step to verify file location
                     echo 'Listing files in the current directory:'
-                    sh 'ls -l'  // List files to verify build.sh exists
+                    bat 'dir'  // Windows command to list files
                 }
             }
         }
@@ -30,7 +30,9 @@ pipeline {
             steps {
                 script {
                     echo 'Building the application...'
-                    sh './build.sh'  // Run build.sh using sh
+                    bat 'echo Running build.sh script...'  // Log a message before running the script
+                    // Use WSL to run the build.sh script
+                    bat 'wsl ./build.sh'  // Run build.sh using WSL
                 }
             }
         }
@@ -40,7 +42,8 @@ pipeline {
             steps {
                 script {
                     echo 'Verifying build artifacts...'
-                    sh 'ls build'  // Modify to your build directory if necessary
+                    bat 'echo Verifying build artifacts in the build directory...'  // Log message before verification
+                    bat 'dir build'  // Modify to your build directory if necessary
                 }
             }
         }
@@ -50,7 +53,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    sh './run_tests.sh'  // Run unit tests using sh
+                    bat 'echo Running unit tests with run_tests.bat script...'  // Log a message before running unit tests
+                    bat 'wsl ./run_tests.sh'  // Run unit tests using WSL
                 }
             }
         }
@@ -60,7 +64,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    sh './run_integration_tests.sh'  // Run integration tests using sh
+                    bat 'echo Running integration tests with run_integration_tests.bat script...'  // Log a message before running integration tests
+                    bat 'wsl ./run_integration_tests.sh'  // Run integration tests using WSL
                 }
             }
         }
