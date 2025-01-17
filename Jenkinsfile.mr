@@ -20,7 +20,7 @@ pipeline {
                 script {
                     // Debugging step to verify file location
                     echo 'Listing files in the current directory:'
-                    bat 'dir'  // Windows command to list files
+                    bat 'dir'  // List files to verify build.sh exists
                 }
             }
         }
@@ -31,8 +31,7 @@ pipeline {
                 script {
                     echo 'Building the application...'
                     bat 'echo Running build.sh script...'  // Log a message before running the script
-                    // Use WSL to run the build.sh script
-                    bat 'wsl ./build.sh'  // Run build.sh using WSL
+                    bat 'wsl.exe -u montassar ./build.sh'  // Replace <username> with your WSL username
                 }
             }
         }
@@ -42,7 +41,7 @@ pipeline {
             steps {
                 script {
                     echo 'Verifying build artifacts...'
-                    bat 'echo Verifying build artifacts in the build directory...'  // Log message before verification
+                    bat 'echo Verifying build artifacts in the build directory...'
                     bat 'dir build'  // Modify to your build directory if necessary
                 }
             }
@@ -53,8 +52,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    bat 'echo Running unit tests with run_tests.bat script...'  // Log a message before running unit tests
-                    bat 'wsl ./run_tests.sh'  // Run unit tests using WSL
+                    bat 'echo Running unit tests with run_tests.bat script...'
+                    bat 'wsl.exe -u montassar ./run_tests.sh'  // Run unit tests as a specific user
                 }
             }
         }
@@ -64,8 +63,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    bat 'echo Running integration tests with run_integration_tests.bat script...'  // Log a message before running integration tests
-                    bat 'wsl ./run_integration_tests.sh'  // Run integration tests using WSL
+                    bat 'echo Running integration tests with run_integration_tests.bat script...'
+                    bat 'wsl.exe -u montassar ./run_integration_tests.sh'  // Run integration tests as a specific user
                 }
             }
         }
