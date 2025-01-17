@@ -1,56 +1,49 @@
 pipeline {
     agent any
 
-    // Trigger pipeline on push to GitHub (which includes pull request events)
     triggers {
         githubPush()
     }
 
     stages {
-        // Checkout the code from the repository
         stage('Checkout') {
             steps {
                 checkout scm
             }
         }
 
-        // Verify that the build.sh file exists
         stage('Verify Files') {
             steps {
                 script {
-                    // Debugging step to verify file location
                     echo 'Listing files in the current directory:'
-                    sh 'ls -al'  // List files to verify build.sh exists
+                    powershell 'dir'  // Use PowerShell to list files
                 }
             }
         }
 
-        // Build the application
         stage('Build') {
             steps {
                 script {
                     echo 'Building the application...'
-                    sh './build.sh'  // Call the build script
+                    powershell './build.ps1'  // Change to PowerShell script
                 }
             }
         }
 
-        // Run unit tests
         stage('Unit Test') {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    sh './run_tests.sh'  // Run the unit tests script
+                    powershell './run_tests.ps1'  // Change to PowerShell script
                 }
             }
         }
 
-        // Run integration tests
         stage('Integration Test') {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    sh './run_integration_tests.sh'  // Run the integration tests script
+                    powershell './run_integration_tests.ps1'  // Change to PowerShell script
                 }
             }
         }
