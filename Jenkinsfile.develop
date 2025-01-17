@@ -2,45 +2,61 @@ pipeline {
     agent any
 
     stages {
-        stage('Build') {
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Verify Files') {
             steps {
                 script {
-                    // Compile and build the app
+                    echo 'Listing files in the current directory:'
+                    bat 'dir'  // List files to verify necessary files exist
+                }
+            }
+        }
+
+        stage('Build') {
+            when {
+                changeRequest(target: 'main', source: 'develop')
+            }
+            steps {
+                script {
                     echo 'Building the application...'
-                    bat './mvnw clean install -Dspring.profiles.active=test'  // Run Maven build with the 'test' profile
+                    bat './mvnw clean install -Dspring.profiles.active=test'  // Set active profile to 'test' using Maven
                 }
             }
         }
 
         stage('Unit Test') {
+            when {
+                changeRequest(target: 'main', source: 'develop')
+            }
             steps {
                 script {
-                    // Run unit tests
                     echo 'Running unit tests...'
-                    bat './mvnw test -Dspring.profiles.active=test'  // Run Maven unit tests with the 'test' profile
+                    bat './mvnw test -Dspring.profiles.active=test'  // Set active profile to 'test' for unit tests
                 }
             }
         }
 
         stage('Integration Test') {
+            when {
+                changeRequest(target: 'main', source: 'develop')
+            }
             steps {
                 script {
-                    // Run integration tests
                     echo 'Running integration tests...'
-                    bat './mvnw integration-test -Dspring.profiles.active=test'  // Run Maven integration tests with the 'test' profile
+                    bat './mvnw integration-test -Dspring.profiles.active=test'  // Set active profile to 'test' for integration tests
                 }
             }
         }
     }
 
-    triggers {
-        // Trigger this pipeline only when changes are merged into the `develop` branch
-        gitlab(triggerOnPush: true, branches: 'develop')
-    }
-
     post {
         always {
-            echo 'Develop pipeline completed.'
+            echo 'Pipeline completed.'
         }
     }
 }
