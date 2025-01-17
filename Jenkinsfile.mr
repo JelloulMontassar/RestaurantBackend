@@ -1,0 +1,47 @@
+pipeline {
+    agent any
+
+    stages {
+        stage('Build') {
+            steps {
+                script {
+                    // Compile and build the app
+                    echo 'Building the application...'
+                    sh './build.sh'  // Your build script
+                }
+            }
+        }
+
+        stage('Unit Test') {
+            steps {
+                script {
+                    // Run unit tests
+                    echo 'Running unit tests...'
+                    sh './run_tests.sh'  // Your unit tests script
+                }
+            }
+        }
+
+        stage('Integration Test') {
+            steps {
+                script {
+                    // Run integration tests
+                    echo 'Running integration tests...'
+                    sh './run_integration_tests.sh'  // Your integration tests script
+                }
+            }
+        }
+    }
+
+    triggers {
+        // Trigger the pipeline only when a merge request is created
+        // Adjust this to your SCM setup
+        githubPush()
+    }
+
+    post {
+        always {
+            echo 'Merge request pipeline completed.'
+        }
+    }
+}

@@ -1,0 +1,51 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_VERSION = "${env.BRANCH_NAME}"  // Set image version to the branch name
+        IMAGE_NAME = 'myapp'
+    }
+
+    stages {
+        stage('Build Docker Image') {
+            steps {
+                script {
+                    // Build the Docker image from the code
+                    echo 'Building Docker image...'
+                    sh 'docker build -t ${IMAGE_NAME}:${IMAGE_VERSION} .'
+                }
+            }
+        }
+
+        stage('Push Docker Image') {
+            steps {
+                script {
+                    // Push the Docker image to a registry (adjust with your own registry details)
+                    echo 'Pushing Docker image to the registry...'
+                    sh 'docker push ${IMAGE_NAME}:${IMAGE_VERSION}'  // Push image
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                script {
+                    // Deploy the application (example for deploying Docker containers)
+                    echo 'Deploying application...'
+                    sh './deploy.sh'  // Deployment script (can be adjusted)
+                }
+            }
+        }
+    }
+
+    triggers {
+        // Trigger this pipeline only when a branch with name release-* is created
+        gitlab(triggerOnPush: true, branches: 'release-*')
+    }
+
+    post {
+        always {
+            echo 'Release pipeline completed.'
+        }
+    }
+}

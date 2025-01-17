@@ -163,12 +163,12 @@ public class CarteEtudiantService {
         CarteEtudiant carteEtudiant = carteEtudiantRepository.findById(Math.toIntExact(carteId))
                 .orElseThrow(() -> new IllegalArgumentException("Carte étudiant introuvable."));
 
-        LocalDate today = LocalDate.now();
-        for (Long repasId : repasIds) {
-            if (!menuService.isRepasAvailableInMenuForDate(repasId, today)) {
-                throw new IllegalArgumentException("Le repas ID " + repasId + " n'est pas disponible dans le menu de cette semaine.");
-            }
-        }
+//        LocalDate today = LocalDate.now();
+//        for (Long repasId : repasIds) {
+//            if (!menuService.isRepasAvailableInMenuForDate(repasId, today)) {
+//                throw new IllegalArgumentException("Le repas ID " + repasId + " n'est pas disponible dans le menu de cette semaine.");
+//            }
+//        }
 
         double prixTotal = repasService.calculerPrixTotalRepas(repasIds);
         if (carteEtudiant.getSolde() < prixTotal) {
