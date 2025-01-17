@@ -3,7 +3,7 @@ pipeline {
 
     triggers {
         // Trigger only when a branch with name release-* is created
-        pollSCM('H/5 * * * *') // Poll every 5 minutes
+        pollSCM('H/5 * * * *') // Poll every 5 minute
     }
 
     stages {
