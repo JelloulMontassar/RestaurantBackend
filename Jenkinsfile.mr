@@ -20,7 +20,7 @@ pipeline {
                 script {
                     // Debugging step to verify file location
                     echo 'Listing files in the current directory:'
-                    sh 'ls -al'  // List files to verify build.sh exists (use 'ls' for Unix-like systems)
+                    bat 'dir'  // List files to verify build.bat exists (use 'dir' for Windows)
                 }
             }
         }
@@ -30,8 +30,9 @@ pipeline {
             steps {
                 script {
                     echo 'Building the application...'
-                    sh 'echo Running build.sh script...'  // Log a message before running the script
-                    sh './build.sh'  // Call the build.sh script (use './' for Unix-like systems)
+                    bat 'echo Running build.bat script...'  // Log a message before running the script
+                    // Run the build.sh script with Git Bash
+                    bat '"C:\\Program Files\\Git\\bin\\sh.exe" ./build.sh'
                 }
             }
         }
@@ -40,10 +41,9 @@ pipeline {
         stage('Verify Build Artifacts') {
             steps {
                 script {
-                    // Assuming your build script generates files like jar or war, adjust as necessary
                     echo 'Verifying build artifacts...'
-                    sh 'echo Verifying build artifacts in the build directory...'  // Log message before verification
-                    sh 'ls -al build'  // Modify to your build directory if necessary (use 'ls' for Unix-like systems)
+                    bat 'echo Verifying build artifacts in the build directory...'  // Log message before verification
+                    bat 'dir build'  // Modify to your build directory if necessary
                 }
             }
         }
@@ -53,8 +53,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    sh 'echo Running unit tests with run_tests.sh script...'  // Log a message before running unit tests
-                    sh './run_tests.sh'  // Run the unit tests shell script (use './' for Unix-like systems)
+                    bat 'echo Running unit tests with run_tests.bat script...'  // Log a message before running unit tests
+                    bat '"C:\\Program Files\\Git\\bin\\sh.exe" ./run_tests.sh'  // Run unit tests with Git Bash
                 }
             }
         }
@@ -64,8 +64,8 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    sh 'echo Running integration tests with run_integration_tests.sh script...'  // Log a message before running integration tests
-                    sh './run_integration_tests.sh'  // Run the integration tests shell script (use './' for Unix-like systems)
+                    bat 'echo Running integration tests with run_integration_tests.bat script...'  // Log a message before running integration tests
+                    bat '"C:\\Program Files\\Git\\bin\\sh.exe" ./run_integration_tests.sh'  // Run integration tests with Git Bash
                 }
             }
         }
