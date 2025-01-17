@@ -7,7 +7,7 @@ pipeline {
                 script {
                     // Compile and build the app
                     echo 'Building the application...'
-                    sh './build.sh'  // Your build script
+                    bat './mvnw clean install -Dspring.profiles.active=test'  // Run Maven build with the 'test' profile
                 }
             }
         }
@@ -17,7 +17,7 @@ pipeline {
                 script {
                     // Run unit tests
                     echo 'Running unit tests...'
-                    sh './run_tests.sh'  // Your unit tests script
+                    bat './mvnw test -Dspring.profiles.active=test'  // Run Maven unit tests with the 'test' profile
                 }
             }
         }
@@ -27,7 +27,7 @@ pipeline {
                 script {
                     // Run integration tests
                     echo 'Running integration tests...'
-                    sh './run_integration_tests.sh'  // Your integration tests script
+                    bat './mvnw integration-test -Dspring.profiles.active=test'  // Run Maven integration tests with the 'test' profile
                 }
             }
         }
