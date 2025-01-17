@@ -20,7 +20,7 @@ pipeline {
                 script {
                     // Debugging step to verify file location
                     echo 'Listing files in the current directory:'
-                    sh 'ls -al'  // List files to verify build.sh exists
+                    'ls -al'  // List files to verify build.sh exists
                 }
             }
         }
@@ -30,7 +30,7 @@ pipeline {
             steps {
                 script {
                     echo 'Building the application...'
-                    sh './build.sh'  // Call the build script
+                    './build.sh'  // Call the build script
                 }
             }
         }
@@ -40,7 +40,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running unit tests...'
-                    sh './run_tests.sh'  // Run the unit tests script
+                    './run_tests.sh'  // Run the unit tests script
                 }
             }
         }
@@ -50,7 +50,7 @@ pipeline {
             steps {
                 script {
                     echo 'Running integration tests...'
-                    sh './run_integration_tests.sh'  // Run the integration tests script
+                    './run_integration_tests.sh'  // Run the integration tests script
                 }
             }
         }
