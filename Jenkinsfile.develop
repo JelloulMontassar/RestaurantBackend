@@ -7,7 +7,7 @@ pipeline {
                 script {
                     // Compile and build the app
                     echo 'Building the application...'
-                    sh './build.sh'  // Your build script
+                    sh './build.sh'  //
                 }
             }
         }
