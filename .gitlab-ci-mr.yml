@@ -1,0 +1,41 @@
+# This file defines a pipeline that only runs when a merge request (MR) is created or updated.
+# Stages: Build, Unit Test, Integration Test.
+
+stages:
+  - build
+  - test
+  - integration
+
+mr_build:
+  stage: build
+  script:
+    - echo "Building the application for Merge Request..."
+    - mvn clean package
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - when: never
+
+mr_unit_test:
+  stage: test
+  needs:
+    - job: mr_build
+  script:
+    - echo "Running unit tests for Merge Request..."
+    - mvn test
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - when: never
+
+mr_integration_test:
+  stage: integration
+  needs:
+    - job: mr_unit_test
+  script:
+    - echo "Running integration tests for Merge Request..."
+    - mvn verify
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      when: always
+    - when: never
