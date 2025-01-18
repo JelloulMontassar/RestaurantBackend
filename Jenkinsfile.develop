@@ -1,63 +1,56 @@
 pipeline {
+    // Use 'agent any' or a specific Windows node label
     agent any
 
-
-
     stages {
-        // Checkout the code from the repository
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
 
-        // Verify that necessary file exist
-        stage('Verify Files') {
-            steps {
-                script {
-                    echo 'Listing files in the current directory:'
-                    bat 'dir'  // List files to verify necessary files exist
-                }
-            }
-        }
-
-        // Build the application
         stage('Build') {
+            when {
+                branch 'develop' // Only run this stage if we're on the 'develop' branch
+            }
             steps {
-                script {
-                    echo 'Building the application...'
-                    bat 'echo Running build process...'
-                    bat './mvnw clean install -Dspring.profiles.active=test'  // Set active profile to 'test' using Maven
-                }
+                echo "Building Spring Boot application on Windows..."
+                // Use 'bat' for Windows shell commands.
+                // If you're using the Maven Wrapper (mvnw):
+                bat "./mvnw clean package"
+
+                // Or if you have Maven installed on the PATH:
+                // bat "mvn clean package"
             }
         }
 
-        // Run unit test
-        stage('Unit Test') {
+        stage('Unit Tests') {
+            when {
+                branch 'develop'
+            }
             steps {
-                script {
-                    echo 'Running unit tests...'
-                    bat 'echo Running unit tests...'
-                    bat './mvnw test -Dspring.profiles.active=test'  // Set active profile to 'test' for unit tests
-                }
+                echo "Running unit tests on the 'develop' branch..."
+                // Again, use the Maven Wrapper or Maven directly:
+                bat "./mvnw test"
+
+                // Or
+                // bat "mvn test"
             }
         }
 
-        // Run integration test
-        stage('Integration Test') {
+        stage('Integration Tests') {
+            when {
+                branch 'develop'
+            }
             steps {
-                script {
-                    echo 'Running integration tests...'
-                    bat 'echo Running integration tests...'
-                    bat './mvnw integration-test -Dspring.profiles.active=test'  // Set active profile to 'test' for integration tests
-                }
+                echo "Running integration tests on the 'develop' branch..."
+                // If you have integration tests (e.g. with Spring Boot + @SpringBootTest):
+                bat "./mvnw verify"
+
+                // Or run a separate script if you have one:
+                // bat "run_integration_tests.bat"
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline completed.'
+            echo "Pipeline finished. You can perform cleanups or send notifications here."
         }
     }
 }
