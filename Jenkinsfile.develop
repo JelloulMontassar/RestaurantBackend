@@ -33,7 +33,7 @@ pipeline {
             }
         }
 
-        stage('Integration Tests') {
+        stage('Integration Test') {
             when {
                 branch 'develop'
             }
