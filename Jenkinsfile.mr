@@ -2,18 +2,29 @@ pipeline {
     agent any
 
     stages {
+        // (Optional) Debug stage to check environment variables
+        stage('Debug Env') {
+            steps {
+                script {
+                    // Print out the env variables to see the ones from GitLab
+                    echo "gitlabTargetBranch: ${env.gitlabTargetBranch}"
+                    echo "gitlabSourceBranch: ${env.gitlabSourceBranch}"
+                }
+            }
+        }
+
         stage('Build') {
             when {
                 expression {
-                    // For GitLab:
-                    // This stage will run only if there is a merge request AND its target branch is 'main'.
+                    // Only run if there's a Merge Request AND its target is 'main'
+                    // The plugin sets env.gitlabTargetBranch for an MR
                     return env.gitlabTargetBranch == 'main'
                 }
             }
             steps {
-                echo "Building the application... (MR -> main)"
-                // e.g., on Windows you might use 'bat "mvnw clean package"'
-                // on Linux/Unix:
+                echo "Building the application (MR -> main) ..."
+                // For a Spring Boot app with Maven on Windows, use bat "mvnw clean package"
+                // On Linux, use sh "mvn clean package"
                 sh "mvn clean package"
             }
         }
@@ -25,7 +36,7 @@ pipeline {
                 }
             }
             steps {
-                echo "Running unit tests... (MR -> main)"
+                echo "Running unit tests (MR -> main) ..."
                 sh "mvn test"
             }
         }
@@ -37,16 +48,15 @@ pipeline {
                 }
             }
             steps {
-                echo "Running integration tests... (MR -> main)"
+                echo "Running integration tests (MR -> main) ..."
                 sh "mvn verify"
-                // Or run any custom integration test script
             }
         }
     }
 
     post {
         always {
-            echo "Pipeline completed. Post-build cleanup or notifications go here."
+            echo "Pipeline finished. Post actions or cleanup can go here."
         }
     }
 }
