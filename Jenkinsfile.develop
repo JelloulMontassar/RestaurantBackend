@@ -11,7 +11,7 @@ pipeline {
             }
         }
 
-        // Verify that necessary files exist
+        // Verify that necessary file exist
         stage('Verify Files') {
             steps {
                 script {
