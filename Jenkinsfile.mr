@@ -1,55 +1,52 @@
 pipeline {
     agent any
 
-    // Optionally, you can guard the entire pipeline if you only ever
-    // want it to run when an MR is detected. (Some Jenkins versions
-    // do not fully support top-level "when" in Declarative.)
-    //
-    // For maximum compatibility, we usually put "when" conditions
-    // on each stage.
-
     stages {
         stage('Build') {
             when {
-                // Run this stage only if this is a Merge Request build
-                expression { return env.CHANGE_ID != null }
+                expression {
+                    // For GitLab:
+                    // This stage will run only if there is a merge request AND its target branch is 'main'.
+                    return env.gitlabTargetBranch == 'main'
+                }
             }
             steps {
-                echo "Building the application..."
-                // e.g., on Windows use 'bat', on Linux use 'sh'
-                // For Maven + Spring Boot:
-                // sh "mvn clean package"
-                // or
-                // bat "mvnw.cmd clean package"
+                echo "Building the application... (MR -> main)"
+                // e.g., on Windows you might use 'bat "mvnw clean package"'
+                // on Linux/Unix:
+                sh "mvn clean package"
             }
         }
 
         stage('Unit Test') {
             when {
-                expression { return env.CHANGE_ID != null }
+                expression {
+                    return env.gitlabTargetBranch == 'main'
+                }
             }
             steps {
-                echo "Running unit tests..."
-                // e.g.
-                // sh "mvn test"
+                echo "Running unit tests... (MR -> main)"
+                sh "mvn test"
             }
         }
 
         stage('Integration Test') {
             when {
-                expression { return env.CHANGE_ID != null }
+                expression {
+                    return env.gitlabTargetBranch == 'main'
+                }
             }
             steps {
-                echo "Running integration tests..."
-                // e.g.
-                // sh "mvn verify"
+                echo "Running integration tests... (MR -> main)"
+                sh "mvn verify"
+                // Or run any custom integration test script
             }
         }
     }
 
     post {
         always {
-            echo "Pipeline completed. Post actions (e.g., cleanup) can go here."
+            echo "Pipeline completed. Post-build cleanup or notifications go here."
         }
     }
 }
