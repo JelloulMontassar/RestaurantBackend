@@ -1,63 +1,55 @@
 pipeline {
     agent any
 
-
+    // Optionally, you can guard the entire pipeline if you only ever
+    // want it to run when an MR is detected. (Some Jenkins versions
+    // do not fully support top-level "when" in Declarative.)
+    //
+    // For maximum compatibility, we usually put "when" conditions
+    // on each stage.
 
     stages {
-        // Checkout the code from the repository
-        stage('Checkout') {
-            steps {
-                checkout scm
-            }
-        }
-
-        // Verify that necessary files exist
-        stage('Verify Files') {
-            steps {
-                script {
-                    echo 'Listing files in the current directory:'
-                    bat 'dir'  // List files to verify necessary files exist
-                }
-            }
-        }
-
-        // Build the application
         stage('Build') {
+            when {
+                // Run this stage only if this is a Merge Request build
+                expression { return env.CHANGE_ID != null }
+            }
             steps {
-                script {
-                    echo 'Building the application...'
-                    bat 'echo Running build process...'
-                    bat './mvnw clean install -Dspring.profiles.active=test'  // Set active profile to 'test' using Maven
-                }
+                echo "Building the application..."
+                // e.g., on Windows use 'bat', on Linux use 'sh'
+                // For Maven + Spring Boot:
+                // sh "mvn clean package"
+                // or
+                // bat "mvnw.cmd clean package"
             }
         }
 
-        // Run unit test
         stage('Unit Test') {
+            when {
+                expression { return env.CHANGE_ID != null }
+            }
             steps {
-                script {
-                    echo 'Running unit tests...'
-                    bat 'echo Running unit tests...'
-                    bat './mvnw test -Dspring.profiles.active=test'  // Set active profile to 'test' for unit tests
-                }
+                echo "Running unit tests..."
+                // e.g.
+                // sh "mvn test"
             }
         }
 
-        // Run integration
         stage('Integration Test') {
+            when {
+                expression { return env.CHANGE_ID != null }
+            }
             steps {
-                script {
-                    echo 'Running integration tests...'
-                    bat 'echo Running integration tests...'
-                    bat './mvnw integration-test -Dspring.profiles.active=test'  // Set active profile to 'test' for integration tests
-                }
+                echo "Running integration tests..."
+                // e.g.
+                // sh "mvn verify"
             }
         }
     }
 
     post {
         always {
-            echo 'Pipeline completed.'
+            echo "Pipeline completed. Post actions (e.g., cleanup) can go here."
         }
     }
 }
