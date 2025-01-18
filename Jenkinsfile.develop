@@ -50,7 +50,7 @@ pipeline {
 
     post {
         always {
-            echo "Pipeline finished. You can perform cleanups or send notifications here."
+            echo "Pipeline finished."
         }
     }
 }
